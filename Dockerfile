@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY . ./
 
-
+RUN deno install
 RUN deno compile \
     --include="./src/static/p.txt" \
     --output ./app \
