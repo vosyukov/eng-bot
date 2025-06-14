@@ -10,7 +10,7 @@ import 'dotenv/config';
 import { ScheduleMessageRepository } from './message-manager/schedule-message.repository.ts';
 import { MessageStatus, MessageType } from './message-manager/scheduled-message.entity.ts';
 import { MessageHistoryRepository } from './message-history/message-history.repository.ts';
-
+import { serve } from "https://deno.land/std@0.200.0/http/server.ts";
 dotenv.config();
 function escapeMarkdownV2(text: string | null): string {
 	// Экранируем все специальные символы Telegram MarkdownV2
@@ -21,6 +21,25 @@ export interface UserMessage {
 	message: string;
 	timestamp: Date;
 }
+
+// Создаём HTTP-сервер на порту 8080
+serve(async (req) => {
+	const { method, url } = req;
+
+	if (method === "GET") {
+		// Здесь можно анализировать URL или параметры
+		const responseBody = JSON.stringify({ message: "Hello from Deno!", path: new URL(url).pathname });
+		return new Response(responseBody, {
+			status: 200,
+			headers: { "Content-Type": "application/json" },
+		});
+	}
+
+	// Если метод не GET, возвращаем 405 Method Not Allowed
+	return new Response("Method Not Allowed", { status: 405 });
+}, { port: 8080 });
+
+console.log("Server is running on http://localhost:8080");
 
 const base = import.meta.dirname;  // в сборке — «виртуальная» директория модуля
 
