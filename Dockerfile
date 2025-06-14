@@ -29,7 +29,7 @@ COPY --from=builder /app/deno.json /app/deno.json
 COPY --from=builder /app/drizzle.config.ts /app/drizzle.config.ts
 COPY --from=builder /app/package.json /app/package.json
 
-RUN deno install
+
 
 
 
@@ -41,7 +41,7 @@ COPY entrypoint.sh /entrypoint.sh
 # Переключаемся на root для изменения прав
 USER root
 RUN chmod +x /entrypoint.sh
-
+RUN deno install
 # Переключаемся на пользователя deno
 USER deno
 
