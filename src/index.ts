@@ -45,6 +45,8 @@ const base = import.meta.dirname;  // в сборке — «виртуальна
 
 const systemPrompt = Deno.readTextFileSync(`${base}/static/p.txt`);
 
+console.log(systemPrompt)
+
 const bot = new Telegraf<Context>(process.env.TELEGRAM_BOT_TOKEN!);
 
 const tgBotAdapter = new TgBotAdapter();
@@ -123,7 +125,7 @@ bot.on('text', async (ctx) => {
 	await messageHistoryRepository.addMessage(chatId, userMessage, 'user', timestamp);
 	const contextMessages = await messageHistoryRepository.getMessages({ chatIds: [chatId] });
 
-	console.log(contextMessages);
+
 
 	const tutorReply = await assistant.request({
 		role: 'user',
