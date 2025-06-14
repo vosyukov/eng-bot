@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1748200116343,
+      "tag": "0000_broad_omega_sentinel",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748202021029,
+      "tag": "0001_complete_marten_broadcloak",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1748203364815,
+      "tag": "0002_skinny_master_chief",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1748203547116,
+      "tag": "0003_striped_doctor_spectrum",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1748204718486,
+      "tag": "0004_sad_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1749589392733,
+      "tag": "0005_orange_johnny_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1749589537900,
+      "tag": "0006_natural_inertia",
+      "breakpoints": true
+    }
+  ]
+}

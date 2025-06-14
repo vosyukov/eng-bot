@@ -1,0 +1,1 @@
+ALTER TABLE "scheduled_message" ALTER COLUMN "time" SET NOT NULL;
