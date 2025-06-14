@@ -41,9 +41,9 @@ COPY entrypoint.sh /entrypoint.sh
 # Переключаемся на root для изменения прав
 USER root
 RUN chmod +x /entrypoint.sh
-RUN deno install
+
 # Переключаемся на пользователя deno
 USER deno
-
+RUN deno install
 # Запускаем entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
