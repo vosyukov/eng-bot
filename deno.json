@@ -1,8 +1,8 @@
 {
   "tasks": {
     "dev2": "deno run --allow-env --allow-net --allow-read  --watch  ./src/index.ts",
-    "build": "deno compile --include=./src/static/p.txt --output ./dist/eng-bot --allow-net --allow-env --allow-read ./src/index.ts",
-    "migrate:up": "drizzle-kit migrate",
+    "build": "deno compile --include=\"./src/static/p.txt\" --output ./app --allow-net --allow-env --allow-read ./src/index.ts",
+    "migrate:up": "deno run --allow-read --allow-env --allow-sys --allow-run --allow-net npm:drizzle-kit migrate",
     "migrate:down": "drizzle-kit rollback"
   },
   "imports": {
