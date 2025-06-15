@@ -1,7 +1,7 @@
 import { zodResponseFormat } from 'openai/helpers/zod';
 import OpenAI from 'openai';
 import { z } from 'zod';
-
+import { PromptLayer } from "promptlayer";
 
 import { UserMessage } from './index.ts';
 import { MessageHistoryRow } from "./message-history/message-history.repository.ts";
@@ -20,25 +20,31 @@ export type RoleType = 'system' | 'user' | 'assistant';
 type ChatResponseType = z.infer<typeof ChatResponse>;
 
 export class Assistant {
-	private assistant = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-	private systemPrompt: string;
 
-	constructor() {
-		this.systemPrompt = Deno.readTextFileSync('./src/static/p.txt');
-	}
+
+	constructor() {}
 
 	public async request(
 		message: UserMessage,
 		contextMessages: MessageHistoryRow[],
 	): Promise<ChatResponseType> {
+
+
+
+		const promptLayerClient = new PromptLayer({ apiKey: "pl_b6143b929fd9d49b6367906fb5ec2461" });
+
+		// Typescript
+		const OpenAI = promptLayerClient.OpenAI;
+		 const assistant = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
 		const f = contextMessages.map((m) => ({
 			role: m.sender as never,
 			content: `[${m.time}]: ${m.message}`,
 		}));
-		const chatResp = await this.assistant.chat.completions.create({
+		const chatResp = await assistant.chat.completions.create({
 			model: 'gpt-4o-mini',
 			messages: [
-				{ role: 'system', content: this.systemPrompt },
+				// { role: 'system', content: this.systemPrompt },
 				...f,
 				{
 					role: message.role,

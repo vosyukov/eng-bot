@@ -3,7 +3,6 @@ import { Context, Telegraf } from 'telegraf';
 import cron from 'node-cron';
 import * as dotenv from 'dotenv';
 
-
 import { Assistant } from './assistant.ts';
 import { TgBotAdapter } from './tg-bot.adapter.ts';
 import 'dotenv/config';
@@ -23,7 +22,7 @@ export interface UserMessage {
 }
 
 // Создаём HTTP-сервер на порту 8080
-serve(async (req) => {
+serve(async (req: Request) => {
 	const { method, url } = req;
 
 	if (method === "GET") {
@@ -41,11 +40,6 @@ serve(async (req) => {
 
 console.log("Server is running on http://localhost:8080");
 
-const base = import.meta.dirname;  // в сборке — «виртуальная» директория модуля
-
-const systemPrompt = Deno.readTextFileSync(`${base}/static/p.txt`);
-
-console.log(systemPrompt)
 
 const bot = new Telegraf<Context>(process.env.TELEGRAM_BOT_TOKEN!);
 
@@ -55,40 +49,21 @@ const messageHistoryRepository = new MessageHistoryRepository();
 const assistant = new Assistant();
 interface Localization {
 	startMessage: string;
-	grammarSystemPrompt: string;
-	tutorSystemPrompt: string;
-	correctedLabel: string;
-	tutorLabel: string;
+
 }
 
 const translations: Record<string, Localization> = {
 	ru: {
 		startMessage: 'Привет! Я бот для практики английского. Давай общаться!',
-		grammarSystemPrompt: 'Вы ассистент по проверке грамматики.',
-		tutorSystemPrompt: systemPrompt,
-		correctedLabel: 'Исправлено',
-		tutorLabel: 'Учитель',
 	},
 	en: {
 		startMessage: 'Hi! I’m your English practice bot. Let’s chat!',
-		grammarSystemPrompt: 'You are a grammar correction assistant.',
-		tutorSystemPrompt: systemPrompt,
-		correctedLabel: 'Corrected',
-		tutorLabel: 'Tutor',
 	},
 	es: {
 		startMessage: '¡Hola! Soy tu bot de práctica de inglés. ¡Hablemos!',
-		grammarSystemPrompt: 'Eres un asistente de corrección gramatical.',
-		tutorSystemPrompt: systemPrompt,
-		correctedLabel: 'Corregido',
-		tutorLabel: 'Tutor',
 	},
 	de: {
 		startMessage: 'Hallo! Ich bin dein Englisch-Übungsbot. Lass uns reden!',
-		grammarSystemPrompt: 'Du bist ein Grammatik-Korrekturassistent.',
-		tutorSystemPrompt: systemPrompt,
-		correctedLabel: 'Korrigiert',
-		tutorLabel: 'Tutor',
 	},
 };
 
