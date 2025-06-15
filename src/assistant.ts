@@ -32,7 +32,7 @@ export class Assistant {
 
 
 		const promptLayerClient = new PromptLayer({ apiKey: "pl_b6143b929fd9d49b6367906fb5ec2461" });
-
+console.log(promptLayerClient.templates.all())
 		// Typescript
 		const OpenAI = promptLayerClient.OpenAI;
 		 const assistant = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
