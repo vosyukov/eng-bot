@@ -46,7 +46,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
 
       const contextMessages = await this.messageHistoryRepository.getMessages({ chatIds: [chatId] });
 
-      const tutorReply = await this.assistantService.request(contextMessages);
+      const tutorReply = await this.assistantService.request(chatId, contextMessages);
 
       await this.messageHistoryRepository.addMessage(chatId, tutorReply.mainMessage, 'assistant', new Date());
       if (tutorReply.nextQuestion && tutorReply.tNextQuestion) {
