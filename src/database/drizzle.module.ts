@@ -7,6 +7,7 @@ import { Pool } from 'pg';
 export class DatabaseService implements OnModuleDestroy {
   private pool: Pool;
   public orm: ReturnType<typeof drizzle>;
+  private isPoolClosed = false;
 
   constructor(configService: ConfigService) {
     this.pool = new Pool({
@@ -16,8 +17,14 @@ export class DatabaseService implements OnModuleDestroy {
   }
 
   async onModuleDestroy() {
+    if (this.isPoolClosed) {
+      console.log('Database connections already closed, skipping...');
+      return;
+    }
+
     console.log('Closing database connections...');
     await this.pool.end();
+    this.isPoolClosed = true;
     console.log('Database connections closed');
   }
 }

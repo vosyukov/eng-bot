@@ -37,14 +37,11 @@ export class AssistantService {
 		// Create chat completion with PromptLayer tracking
 		const chatResp = await assistant.chat.completions.create({
 			model: 'gpt-4o-mini',
-			messages: [
-				...f,
-
-			],
+			messages: f,
 			response_format: zodResponseFormat(ChatResponse, 'ChatResponse'),
 			// Add PromptLayer tracking metadata
 			pl_tags: ['eng-bot', 'chat-completion'],
-			return_pl_id: true,
+
 		});
 console.log(chatResp)
 		const tutorReply = JSON.parse(
