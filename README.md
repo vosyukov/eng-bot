@@ -1,59 +1,74 @@
-# Telegram Bot with Inline Buttons
+# English Practice Bot
 
-A TypeScript-based Telegram bot that demonstrates the usage of inline buttons
-and keyboard markup.
-
-## Prerequisites
-
-- Node.js (v14 or higher)
-- npm or yarn
-- Telegram Bot Token (get it from [@BotFather](https://t.me/BotFather))
-
-## Installation
-
-1. Clone this repository
-2. Install dependencies:
-
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Create a `.env` file in the root directory and add your bot token:
-
-```
-BOT_TOKEN=your_bot_token_here
-```
-
-## Running the Bot
-
-For development:
-
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-For production:
-
-```bash
-npm run build
-npm start
-# or
-yarn build
-yarn start
-```
+A Telegram bot for English language practice, built with NestJS.
 
 ## Features
 
-- Inline keyboard buttons
-- URL buttons
-- Button click handling
-- Environment variables support
-- TypeScript support
+- Telegram bot integration
+- RSS feed parsing and storage
+- Scheduled tasks
+- PostgreSQL database integration with Drizzle ORM
 
-## Bot Commands
+## Prerequisites
 
-- `/start` - Displays welcome message with inline keyboard buttons
+- Node.js (v16 or later)
+- PostgreSQL database
+- Telegram Bot Token (from BotFather)
+
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+DATABASE_URL=postgresql://username:password@localhost:5432/database
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+DEFAULT_RSS_FEEDS=https://rssexport.rbc.ru/rbcnews/news/30/full.rss
+RSS_PARSE_INTERVAL_MINUTES=10
+```
+
+## Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Generate database migrations
+npm run drizzle:generate
+
+# Apply database migrations
+npm run drizzle:migrate
+```
+
+## Running the Application
+
+```bash
+# Development mode
+npm run start:dev
+
+# Production mode
+npm run build
+npm run start:prod
+```
+
+## Project Structure
+
+The application follows the NestJS modular architecture:
+
+- `src/main.ts` - Application entry point
+- `src/app.module.ts` - Root module
+- `src/rss/` - RSS module for parsing and storing feeds
+- `src/telegram/` - Telegram bot integration
+- `src/database/` - Database configuration and connection
+
+## Development
+
+```bash
+# Run in development mode with hot reload
+npm run start:dev
+
+# Run linting
+npm run lint
+
+# Format code
+npm run format
+```

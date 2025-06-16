@@ -2,8 +2,8 @@
 set -e
 
 echo "🌱 Running Drizzle migrations…"
-# Здесь вызываем drizzle-kit migrate через Deno без установки npm:
-deno task migrate:up
+# Запускаем миграции через npm скрипт
+npm run migrate:up
 
 echo "🚀 Starting application…"
-exec /app/app
+exec npm run start:prod

@@ -3,9 +3,9 @@ import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   schema: [
-    "./src/schema.ts",
     "./src/message-manager/scheduled-message.entity.ts",
-    "./src/message-history/message-history.entity.ts"
+    "./src/message-history/message-history.entity.ts",
+    "./src/rss/rss-item.entity.ts"
   ],
   dialect: "postgresql",
   out: "./migrations",

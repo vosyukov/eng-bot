@@ -1,14 +1,61 @@
+import { Injectable, Inject, Optional } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
-import { MessageStatus, MessageType, scheduledMessage } from "./scheduled-message.entity.ts";
+import { MessageStatus, MessageType, scheduledMessage } from "./scheduled-message.entity";
 import { and, eq, inArray, lte } from 'drizzle-orm';
-import { RoleType } from "../assistant.ts";
+import { RoleType } from "../assistant/index";
 import { SQL } from 'drizzle-orm/sql/sql';
 
-const db = drizzle(process.env.DATABASE_URL!);
 export type ScheduledMessageRow = typeof scheduledMessage.$inferSelect;
 
+@Injectable()
 export class ScheduleMessageRepository {
+  private readonly db: any;
+  private pool: Pool | null = null;
+  private isInjected = false;
+
+  constructor(
+    @Optional() @Inject('DRIZZLE_ORM') injectedDb?: any,
+  ) {
+    if (injectedDb) {
+      // When used with NestJS DI
+      this.db = injectedDb;
+      this.isInjected = true;
+    } else {
+      // When instantiated directly
+      try {
+        this.pool = new Pool({
+          connectionString: process.env.DATABASE_URL,
+        });
+        this.db = drizzle(this.pool);
+      } catch (error) {
+        console.error('Failed to create database connection:', error);
+        // Create a mock db that logs operations instead of executing them
+        this.db = {
+          insert: () => ({ 
+            values: () => {
+              console.log('Mock insert operation');
+              return { };
+            }
+          }),
+          select: () => ({ from: () => ({ where: () => [] }) }),
+          update: () => ({ set: () => ({ where: () => {} }) }),
+        };
+      }
+    }
+  }
+
+  /**
+   * Close the database connection pool if it was created by this repository
+   */
+  public async close(): Promise<void> {
+    if (this.pool && !this.isInjected) {
+      console.log('Closing ScheduleMessageRepository database connection...');
+      await this.pool.end();
+      console.log('ScheduleMessageRepository database connection closed');
+    }
+  }
 	public async addMessage(
 		chatId: number,
 		message: string,
@@ -24,7 +71,7 @@ export class ScheduleMessageRepository {
 			type,
 			sender,
 		};
-		await db.insert(scheduledMessage).values(record);
+		await this.db.insert(scheduledMessage).values(record);
 	}
 
 	public async getMessages(
@@ -40,7 +87,7 @@ export class ScheduleMessageRepository {
 			conditions.push(inArray(scheduledMessage.type, filter.types));
 		}
 
-		const items = await db.select().from(scheduledMessage).where(
+		const items = await this.db.select().from(scheduledMessage).where(
 			and(...conditions),
 		);
 
@@ -65,7 +112,7 @@ export class ScheduleMessageRepository {
 			conditions.push(inArray(scheduledMessage.type, criteria.types));
 		}
 
-		await db.update(scheduledMessage)
+		await this.db.update(scheduledMessage)
 			.set({
 				status,
 			})

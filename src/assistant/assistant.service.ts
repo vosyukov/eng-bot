@@ -1,41 +1,27 @@
 import { zodResponseFormat } from 'openai/helpers/zod';
 import OpenAI from 'openai';
-import { z } from 'zod';
 import { PromptLayer } from "promptlayer";
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
-import { UserMessage } from './index.ts';
-import { MessageHistoryRow } from "./message-history/message-history.repository.ts";
+import { ChatResponse, ChatResponseType, UserMessage } from './assistant.types';
+import { MessageHistoryRow } from "../message-history/message-history.repository";
 
-const ChatResponse = z.object({
-	grammarNote: z.union([
-		z.string().min(1, { message: 'grammarNote не может быть пустой строкой' }),
-		z.null(),
-	]),
-	mainMessage: z.string(),
-	tMainMessage: z.string(),
-	nextQuestion: z.string(),
-	tNextQuestion: z.string(),
-});
-export type RoleType = 'system' | 'user' | 'assistant';
-type ChatResponseType = z.infer<typeof ChatResponse>;
-
-export class Assistant {
-
-
-	constructor() {}
+@Injectable()
+export class AssistantService {
+	constructor(
+		private readonly configService: ConfigService,
+	) {}
 
 	public async request(
 		message: UserMessage,
 		contextMessages: MessageHistoryRow[],
 	): Promise<ChatResponseType> {
-
-
-
 		const promptLayerClient = new PromptLayer({ apiKey: "pl_b6143b929fd9d49b6367906fb5ec2461" });
-console.log(await promptLayerClient.templates.all())
+		console.log(await promptLayerClient.templates.all())
 		// Typescript
 		const OpenAI = promptLayerClient.OpenAI;
-		 const assistant = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+		const assistant = new OpenAI({ apiKey: this.configService.get<string>('OPENAI_API_KEY') });
 
 		const f = contextMessages.map((m) => ({
 			role: m.sender as never,
@@ -58,7 +44,6 @@ console.log(await promptLayerClient.templates.all())
 		});
 
 		// @ts-ignore
-
 		const tutorReply = JSON.parse(
 			// @ts-ignore
 			chatResp.choices?.[0]?.message.content,

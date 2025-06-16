@@ -1,50 +1,44 @@
 # 1) Сборка и компиляция приложения
-FROM denoland/deno:2.3.5 AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
+
+# Копируем package.json и package-lock.json
+COPY package*.json ./
+
+# Устанавливаем зависимости
+RUN npm ci
 
 # Копируем весь проект
 COPY . .
 
-# Устанавливаем зависимости (если нужно) и компилируем в нативный бинарник
-RUN deno install
-RUN deno run build
+# Компилируем приложение
+RUN npm run build
 
-# 2) Финальный имидж — тот же Deno для выполнения скрипта миграций и бинаря
-FROM denoland/deno:2.3.5
+# 2) Финальный имидж для выполнения приложения
+FROM node:20-alpine
 
-# Пользователь deno уже существует в официальном образе Deno
-# Просто переключаемся на него
-USER deno
+# Создаем пользователя node
+USER node
 
 WORKDIR /app
 
-
-
-# Копируем бинарь и статические файлы
-COPY --from=builder /app/app /app/app
-COPY --from=builder /app/src/static/p.txt /app/src/static/p.txt
+# Копируем собранное приложение и необходимые файлы
+COPY --from=builder /app/dist /app/dist
+COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/migrations /app/migrations
-COPY --from=builder /app/deno.json /app/deno.json
 COPY --from=builder /app/drizzle.config.ts /app/drizzle.config.ts
 COPY --from=builder /app/package.json /app/package.json
-
-
-
-
 
 # Копируем скрипт запуска
 COPY entrypoint.sh /entrypoint.sh
 
-
-
 # Переключаемся на root для изменения прав
 USER root
-RUN chmod +x /entrypoint.sh \
- && deno install
+RUN chmod +x /entrypoint.sh
 
-# Переключаемся на пользователя deno
-USER deno
+# Переключаемся на пользователя node
+USER node
 
 # Запускаем entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
