@@ -1,60 +1,28 @@
-import { Injectable, Inject, Optional } from '@nestjs/common';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-
+import { Injectable } from '@nestjs/common';
 import { MessageStatus, MessageType, scheduledMessage } from "./scheduled-message.entity";
 import { and, eq, inArray, lte } from 'drizzle-orm';
-import { RoleType } from "../assistant/index";
+import { RoleType } from "../assistant/assistant.types";
 import { SQL } from 'drizzle-orm/sql/sql';
+import { DatabaseService } from '../database/drizzle.module';
 
 export type ScheduledMessageRow = typeof scheduledMessage.$inferSelect;
 
 @Injectable()
 export class ScheduleMessageRepository {
   private readonly db: any;
-  private pool: Pool | null = null;
-  private isInjected = false;
 
   constructor(
-    @Optional() @Inject('DRIZZLE_ORM') injectedDb?: any,
+    private readonly databaseService: DatabaseService,
   ) {
-    if (injectedDb) {
-      // When used with NestJS DI
-      this.db = injectedDb;
-      this.isInjected = true;
-    } else {
-      // When instantiated directly
-      try {
-        this.pool = new Pool({
-          connectionString: process.env.DATABASE_URL,
-        });
-        this.db = drizzle(this.pool);
-      } catch (error) {
-        console.error('Failed to create database connection:', error);
-        // Create a mock db that logs operations instead of executing them
-        this.db = {
-          insert: () => ({ 
-            values: () => {
-              console.log('Mock insert operation');
-              return { };
-            }
-          }),
-          select: () => ({ from: () => ({ where: () => [] }) }),
-          update: () => ({ set: () => ({ where: () => {} }) }),
-        };
-      }
-    }
+    this.db = this.databaseService.orm;
   }
 
   /**
-   * Close the database connection pool if it was created by this repository
+   * Connection is now managed by DatabaseService
    */
   public async close(): Promise<void> {
-    if (this.pool && !this.isInjected) {
-      console.log('Closing ScheduleMessageRepository database connection...');
-      await this.pool.end();
-      console.log('ScheduleMessageRepository database connection closed');
-    }
+    // No need to close connections manually
+    console.log('ScheduleMessageRepository: Connection managed by DatabaseService');
   }
 	public async addMessage(
 		chatId: number,

@@ -1,52 +1,26 @@
-import { Injectable, Inject, Optional } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { and, inArray } from 'drizzle-orm';
-import { RoleType } from '../assistant/index';
+import { RoleType } from '../assistant/assistant.types';
 import { SQL } from 'drizzle-orm/sql/sql';
 import { messageHistory } from './message-history.entity';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { DatabaseService } from '../database/drizzle.module';
 
 export type MessageHistoryRow = typeof messageHistory.$inferSelect;
 
 @Injectable()
 export class MessageHistoryRepository {
   private readonly db: any;
-  private pool: Pool | null = null;
-  private isInjected = false;
 
   constructor(
-    @Optional() @Inject('DRIZZLE_ORM') injectedDb?: any,
+    private readonly databaseService: DatabaseService,
   ) {
-    if (injectedDb) {
-      this.db = injectedDb;
-      this.isInjected = true;
-    } else {
-      try {
-        this.pool = new Pool({
-          connectionString: process.env.DATABASE_URL,
-        });
-        this.db = drizzle(this.pool);
-      } catch (error) {
-        console.error('Failed to create database connection:', error);
-        this.db = {
-          insert: () => ({ 
-            values: () => {
-              console.log('Mock insert operation');
-              return { };
-            }
-          }),
-          select: () => ({ from: () => ({ where: () => [] }) }),
-        };
-      }
-    }
+    this.db = this.databaseService.orm;
   }
 
+  // Connection is now managed by DatabaseService
   public async close(): Promise<void> {
-    if (this.pool && !this.isInjected) {
-      console.log('Closing MessageHistoryRepository database connection...');
-      await this.pool.end();
-      console.log('MessageHistoryRepository database connection closed');
-    }
+    // No need to close connections manually
+    console.log('MessageHistoryRepository: Connection managed by DatabaseService');
   }
 
   public async addMessage(
