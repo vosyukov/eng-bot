@@ -1,6 +1,4 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Context } from 'telegraf';
 import { TelegramBotAdapter } from './telegram-bot.adapter';
 import { I18nService } from '../i18n/i18n.service';
 import { UtilsService } from '../utils/utils.service';
@@ -13,7 +11,6 @@ import { MessageStatus, MessageType } from '../message-manager/scheduled-message
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly telegramBotAdapter: TelegramBotAdapter,
-    private readonly configService: ConfigService,
     private readonly i18nService: I18nService,
     private readonly utilsService: UtilsService,
     private readonly assistantService: AssistantService,
