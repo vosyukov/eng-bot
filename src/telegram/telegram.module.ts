@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TelegramService } from './telegram.service';
 import { TelegramBotAdapter } from './telegram-bot.adapter';
@@ -15,7 +15,7 @@ import { MessageManagerModule } from '../message-manager/message-manager.module'
     UtilsModule,
     AssistantModule,
     MessageHistoryModule,
-    MessageManagerModule,
+    forwardRef(() => MessageManagerModule),
   ],
   providers: [TelegramService, TelegramBotAdapter],
   exports: [TelegramService],

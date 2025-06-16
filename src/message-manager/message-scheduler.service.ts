@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { ScheduleMessageRepository } from './schedule-message.repository';
 import { MessageHistoryRepository } from '../message-history/message-history.repository';
@@ -10,6 +10,7 @@ export class MessageSchedulerService implements OnModuleInit {
   constructor(
     private readonly scheduleMessageRepository: ScheduleMessageRepository,
     private readonly messageHistoryRepository: MessageHistoryRepository,
+    @Inject(forwardRef(() => TelegramService))
     private readonly telegramService: TelegramService,
   ) {}
 

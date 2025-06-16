@@ -24,6 +24,8 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   onModuleInit() {
     const bot = this.telegramBotAdapter.getBot();
 
+    console.log('init')
+
     bot.start(async (ctx) => {
       const lang = ctx.from?.language_code?.split('-')[0] || 'en';
       const startMessage = this.i18nService.getLocalizedText('startMessage', lang);
