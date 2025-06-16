@@ -19,7 +19,6 @@ export class AssistantService {
 	): Promise<ChatResponseType> {
 		const promptLayerClient = new PromptLayer({ apiKey: "pl_b6143b929fd9d49b6367906fb5ec2461" });
 		console.log(await promptLayerClient.templates.all())
-		// Typescript
 		const OpenAI = promptLayerClient.OpenAI;
 		const assistant = new OpenAI({ apiKey: this.configService.get<string>('OPENAI_API_KEY') });
 
@@ -30,22 +29,17 @@ export class AssistantService {
 		const chatResp = await assistant.chat.completions.create({
 			model: 'gpt-4o-mini',
 			messages: [
-				// { role: 'system', content: this.systemPrompt },
 				...f,
 				{
 					role: message.role,
 					content: `[${message.timestamp}]: ${message.message}`,
 				},
 			],
-			// store: true,
 
 			response_format: zodResponseFormat(ChatResponse, 'ChatResponse'),
-			// max_tokens: 150,
 		});
 
-		// @ts-ignore
 		const tutorReply = JSON.parse(
-			// @ts-ignore
 			chatResp.choices?.[0]?.message.content,
 		) as ChatResponseType;
 

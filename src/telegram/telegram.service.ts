@@ -24,42 +24,33 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   onModuleInit() {
     const bot = this.telegramBotAdapter.getBot();
 
-    // Register bot commands
     bot.start(async (ctx) => {
       const lang = ctx.from?.language_code?.split('-')[0] || 'en';
       const startMessage = this.i18nService.getLocalizedText('startMessage', lang);
       await ctx.reply(startMessage);
     });
 
-    // Handle text messages
     bot.on('text', async (ctx) => {
       const userMessage = ctx.message.text;
       const timestamp = new Date(ctx.message.date * 1000);
       const chatId = ctx.chat.id;
 
-      // Revoke any scheduled messages for this chat
       await this.scheduleMessageRepository.updateStatus({
         chatIds: [chatId],
         types: [MessageType.SCHEDULED],
       }, MessageStatus.REVOKED);
 
-      // Add user message to history
       await this.messageHistoryRepository.addMessage(chatId, userMessage, 'user', timestamp);
 
-      // Get context messages for the chat
       const contextMessages = await this.messageHistoryRepository.getMessages({ chatIds: [chatId] });
 
-      // Get response from assistant
       const tutorReply = await this.assistantService.request({
         role: 'user',
         message: userMessage,
         timestamp,
       }, contextMessages);
 
-      // Add assistant's main message to history
       await this.messageHistoryRepository.addMessage(chatId, tutorReply.mainMessage, 'assistant', new Date());
-
-      // Schedule next question if available
       if (tutorReply.nextQuestion && tutorReply.tNextQuestion) {
         const text = `${this.utilsService.escapeMarkdownV2(tutorReply.nextQuestion)}\n\n ||${this.utilsService.escapeMarkdownV2(tutorReply.tNextQuestion)}||`;
         await this.scheduleMessageRepository.addMessage(
@@ -71,7 +62,6 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
         );
       }
 
-      // Prepare and send the response
       let text: string = '';
 
       if (tutorReply.grammarNote) {
@@ -94,7 +84,6 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
       );
     });
 
-    // Launch the bot
     bot.launch();
     console.log('Telegram bot started');
   }

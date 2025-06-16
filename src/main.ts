@@ -8,21 +8,17 @@ import { RssItemRepository } from './rss/rss-item.repository';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable graceful shutdown
   app.enableShutdownHooks();
 
-  // Get port from environment or use default
   const PORT = process.env.PORT || 8080;
 
   await app.listen(PORT);
   console.log(`Server is running on http://localhost:${PORT}`);
 
-  // Register shutdown handlers
   const handleShutdown = async (signal: string) => {
     console.log(`Received ${signal}. Starting graceful shutdown...`);
 
     try {
-      // Close the NestJS application
       await app.close();
       console.log('Application closed');
     } catch (error) {

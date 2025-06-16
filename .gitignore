@@ -1,6 +1,3 @@
-# Gitignore for a Deno project
-
-# Deno runtime temporary files and cache
 deno_dir/
 .deno/
 .var/
@@ -8,38 +5,23 @@ var/
 node_modules/
 ./.idea
 .env
-# Deno cache directory (if overridden via DENO_DIR)
-# (uncomment if you set DENO_DIR locally)
-# DENO_DIR=
-
-# Generated debug/build info
 *.tsbuildinfo
 
-# Vendor directory for vendoring dependencies
 default_vendor/
 vendor/
 
-# Coverage output (e.g., from `deno coverage`)
 coverage/
 
-# Distribution/output builds
 dist/
 build/
 
-# Lockfile - usually you want to commit this to ensure consistent deps
-# deno.lock
-
-# Import map backup (if you ever make backups)
 import_map.json.bak
 
-# Logs and debug files
 npm-debug.log*
 pnpm-debug.log*
 
-# IDE/editor files
 .vscode/
 .idea/
 
-# OS files
 .DS_Store
 Thumbs.db

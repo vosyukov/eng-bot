@@ -18,11 +18,9 @@ export class MessageHistoryRepository {
     @Optional() @Inject('DRIZZLE_ORM') injectedDb?: any,
   ) {
     if (injectedDb) {
-      // When used with NestJS DI
       this.db = injectedDb;
       this.isInjected = true;
     } else {
-      // When instantiated directly
       try {
         this.pool = new Pool({
           connectionString: process.env.DATABASE_URL,
@@ -30,7 +28,6 @@ export class MessageHistoryRepository {
         this.db = drizzle(this.pool);
       } catch (error) {
         console.error('Failed to create database connection:', error);
-        // Create a mock db that logs operations instead of executing them
         this.db = {
           insert: () => ({ 
             values: () => {
@@ -44,9 +41,6 @@ export class MessageHistoryRepository {
     }
   }
 
-  /**
-   * Close the database connection pool if it was created by this repository
-   */
   public async close(): Promise<void> {
     if (this.pool && !this.isInjected) {
       console.log('Closing MessageHistoryRepository database connection...');

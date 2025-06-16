@@ -5,7 +5,6 @@ import { Request, Response } from 'express';
 export class HealthcheckController {
   @Get('*')
   handleGet(@Req() req: Request, @Res() res: Response) {
-    // This replicates the functionality from index.ts
     const responseBody = { 
       message: "Hello from Node.js!", 
       path: req.path 
@@ -15,7 +14,6 @@ export class HealthcheckController {
 
   @All('*')
   handleAll(@Res() res: Response) {
-    // This replicates the functionality from index.ts for all other methods
     return res.status(405).send('Method Not Allowed');
   }
 }
