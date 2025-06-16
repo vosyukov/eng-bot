@@ -29,10 +29,11 @@ export class AssistantService {
 		// Create OpenAI instance with PromptLayer tracking
 		const assistant = new OpenAIWithPL({ apiKey: openaiApiKey });
 
-		const f = contextMessages.map((m) => ({
-			role: m.sender as never,
-			content: `[${m.time}]: ${m.message}`,
-		}));
+		const f = contextMessages.map((m) =>  `[${m.time}]: ${m.message}`);
+// const f = contextMessages.map((m) => ({
+// 			role: m.sender as never,
+// 			content: `[${m.time}]: ${m.message}`,
+// 		}));
 
 
 
