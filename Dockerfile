@@ -18,6 +18,9 @@ RUN npm run build
 # 2) Финальный имидж для выполнения приложения
 FROM node:20-alpine
 
+# Устанавливаем bash
+RUN apk add --no-cache bash
+
 # Создаем пользователя node
 USER node
 
