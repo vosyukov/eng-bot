@@ -14,14 +14,14 @@ export class AssistantService {
 	) {}
 
 	public async request(
-		chatId: number,
+
 		contextMessages: MessageHistoryRow[],
 	): Promise<ChatResponseType> {
 		const promptLayerApiKey = this.configService.get<string>('PROMPTLAYER_API_KEY');
 		const openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
 
 		// Initialize PromptLayer with API key from config
-		const promptLayer = new PromptLayer({ apiKey: promptLayerApiKey });
+		const promptLayer = new PromptLayer({ apiKey: promptLayerApiKey, enableTracing: true });
 
 		// Get the OpenAI client through PromptLayer
 		const OpenAIWithPL = promptLayer.OpenAI;
@@ -44,7 +44,7 @@ export class AssistantService {
 			response_format: zodResponseFormat(ChatResponse, 'ChatResponse'),
 			// Add PromptLayer tracking metadata
 			pl_tags: ['eng-bot', 'chat-completion'],
-			pl_id: chatId.toString(), // Add trace_id for exact search in PromptLayer
+			return_pl_id: true,
 		});
 
 		const tutorReply = JSON.parse(
