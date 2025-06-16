@@ -46,7 +46,7 @@ export class AssistantService {
 			pl_tags: ['eng-bot', 'chat-completion'],
 			return_pl_id: true,
 		});
-
+console.log(chatResp)
 		const tutorReply = JSON.parse(
 			chatResp.choices?.[0]?.message.content,
 		) as ChatResponseType;
