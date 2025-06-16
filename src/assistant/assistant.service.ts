@@ -17,15 +17,23 @@ export class AssistantService {
 		message: UserMessage,
 		contextMessages: MessageHistoryRow[],
 	): Promise<ChatResponseType> {
-		const promptLayerClient = new PromptLayer({ apiKey: "pl_b6143b929fd9d49b6367906fb5ec2461" });
-		console.log(await promptLayerClient.templates.all())
-		const OpenAI = promptLayerClient.OpenAI;
-		const assistant = new OpenAI({ apiKey: this.configService.get<string>('OPENAI_API_KEY') });
+		const promptLayerApiKey = this.configService.get<string>('PROMPTLAYER_API_KEY');
+		const openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
+
+		// Initialize PromptLayer with API key from config
+		const promptLayer = new PromptLayer({ apiKey: promptLayerApiKey });
+
+		// Get the OpenAI client through PromptLayer
+		const OpenAIWithPL = promptLayer.OpenAI;
+
+		// Create OpenAI instance with PromptLayer tracking
+		const assistant = new OpenAIWithPL({ apiKey: openaiApiKey });
 
 		const f = contextMessages.map((m) => ({
 			role: m.sender as never,
 			content: `[${m.time}]: ${m.message}`,
 		}));
+		// Create chat completion with PromptLayer tracking
 		const chatResp = await assistant.chat.completions.create({
 			model: 'gpt-4o-mini',
 			messages: [
@@ -35,8 +43,9 @@ export class AssistantService {
 					content: `[${message.timestamp}]: ${message.message}`,
 				},
 			],
-
 			response_format: zodResponseFormat(ChatResponse, 'ChatResponse'),
+			// Add PromptLayer tracking metadata
+			pl_tags: ['eng-bot', 'chat-completion'],
 		});
 
 		const tutorReply = JSON.parse(
