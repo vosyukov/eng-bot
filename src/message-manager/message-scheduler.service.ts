@@ -34,7 +34,7 @@ export class MessageSchedulerService implements OnModuleInit {
           { ids: [item.id] },
           MessageStatus.SENT,
         ),
-        this.messageHistoryRepository.addMessage(item.chatId, item.message, 'assistant', new Date()),
+
         this.telegramService.sendMessage(item.chatId, item.message),
       ]);
     }
