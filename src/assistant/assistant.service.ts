@@ -14,7 +14,7 @@ export class AssistantService {
 	) {}
 
 	public async request(
-		message: UserMessage,
+		chatId: number,
 		contextMessages: MessageHistoryRow[],
 	): Promise<ChatResponseType> {
 		const promptLayerApiKey = this.configService.get<string>('PROMPTLAYER_API_KEY');
@@ -33,19 +33,18 @@ export class AssistantService {
 			role: m.sender as never,
 			content: `[${m.time}]: ${m.message}`,
 		}));
+
 		// Create chat completion with PromptLayer tracking
 		const chatResp = await assistant.chat.completions.create({
 			model: 'gpt-4o-mini',
 			messages: [
 				...f,
-				{
-					role: message.role,
-					content: `[${message.timestamp}]: ${message.message}`,
-				},
+
 			],
 			response_format: zodResponseFormat(ChatResponse, 'ChatResponse'),
 			// Add PromptLayer tracking metadata
 			pl_tags: ['eng-bot', 'chat-completion'],
+			pl_id: chatId.toString(), // Add trace_id for exact search in PromptLayer
 		});
 
 		const tutorReply = JSON.parse(
