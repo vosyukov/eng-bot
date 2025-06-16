@@ -34,18 +34,23 @@ export class AssistantService {
 			content: `[${m.time}]: ${m.message}`,
 		}));
 
-		// Create chat completion with PromptLayer tracking
-		const chatResp = await assistant.chat.completions.create({
-			model: 'gpt-4o-mini',
-			messages: f,
-			response_format: zodResponseFormat(ChatResponse, 'ChatResponse'),
-			// Add PromptLayer tracking metadata
-			pl_tags: ['eng-bot', 'chat-completion'],
 
-		});
-console.log(chatResp)
+
+		const response = await promptLayer.run({
+			promptName: "eng_bot",        // имя вашего шаблона
+			inputVariables: {                     // если в шаблоне есть {username}, {topic} и т.п.
+				chat_history: f.join('\n'),
+			},
+			stream: false
+
+		}) as {
+			request_id: any;
+			raw_response: any;
+			prompt_blueprint: any;
+		};
+console.log(response);
 		const tutorReply = JSON.parse(
-			chatResp.choices?.[0]?.message.content,
+			response.raw_response.choices?.[0]?.message.content,
 		) as ChatResponseType;
 
 		return tutorReply;
