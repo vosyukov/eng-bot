@@ -29,18 +29,19 @@ export class AssistantService {
 		// Create OpenAI instance with PromptLayer tracking
 		const assistant = new OpenAIWithPL({ apiKey: openaiApiKey });
 
-		const f = contextMessages.map((m) =>  `[${m.time}]: ${m.message}`);
-// const f = contextMessages.map((m) => ({
-// 			role: m.sender as never,
-// 			content: `[${m.time}]: ${m.message}`,
-// 		}));
+		// const f = contextMessages.map((m) =>  `[${m.time}]: ${m.message}`);
+const f = contextMessages.map((m) => ({
+			sender: m.sender as never,
+			text: `${m.message}`,
+			timestamp: m.time
+		}));
 
 
 
 		const response = await promptLayer.run({
 			promptName: "eng_bot",        // имя вашего шаблона
 			inputVariables: {                     // если в шаблоне есть {username}, {topic} и т.п.
-				chat_history: f.join('\n'),
+				chat_history: JSON.stringify(f),
 			},
 			stream: false
 
