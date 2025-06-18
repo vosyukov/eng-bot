@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Inject, forwardRef } from "@nestjs/common";
+import { Injectable, Inject, forwardRef } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { ScheduleMessageRepository } from "./schedule-message.repository";
 import { MessageHistoryRepository } from "../message-history/message-history.repository";
@@ -18,6 +18,8 @@ export class MessageSchedulerService {
     @InjectLogger()
     private readonly loggingService: LoggingService,
   ) {}
+
+  public async onHandleMessage(): Promise<void> {}
 
   @Cron("*/10 * * * * *")
   async processScheduledMessages() {

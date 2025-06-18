@@ -16,60 +16,65 @@ export class AssistantService {
     const promptLayerApiKey = this.configService.get<string>(
       "PROMPTLAYER_API_KEY",
     );
-    // const openaiApiKey = this.configService.get<string>("OPENAI_API_KEY");
 
-    // Initialize PromptLayer with API key from config
-    const promptLayer = new PromptLayer({
+    const promptLayerOriginal = new PromptLayer({
       apiKey: promptLayerApiKey,
       enableTracing: true,
     });
 
-    // Get the OpenAI client through PromptLayer
-    // const OpenAIWithPL = promptLayer.OpenAI;
+    const promptLayer = new Proxy(promptLayerOriginal, {
+      get(target, prop) {
+        if (prop === "run") {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          return async function (...args) {
+            const originalConsoleLog = console.log;
 
-    // Create OpenAI instance with PromptLayer tracking
-    // const assistant = new OpenAIWithPL({ apiKey: openaiApiKey });
+            console.log = () => {};
 
-    // const f = contextMessages.map((m) =>  `[${m.time}]: ${m.message}`);
+            try {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-expect-error
+              // eslint-disable-next-line prefer-spread
+              const result = await target.run.apply(target, args);
+              return result;
+            } finally {
+              console.log = originalConsoleLog;
+            }
+          };
+        }
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        return target[prop];
+      },
+    });
+
     const f = contextMessages.map((m) => ({
       sender: m.sender as never,
       text: `${m.message}`,
       timestamp: m.time,
     }));
 
-    // Temporarily override console.log to suppress output from promptLayer.run
-    const originalConsoleLog = console.log;
-    console.log = () => {};
+    const response = (await promptLayer.run({
+      promptName: "eng_bot", // имя вашего шаблона
+      inputVariables: {
+        chat_history: JSON.stringify(f),
+      },
+      stream: false,
+      metadata: {
+        chatId: chatId.toString(),
+      },
+    })) as {
+      request_id: any;
+      raw_response: any;
+      prompt_blueprint: any;
+    };
 
-    try {
-      const response = (await promptLayer.run({
-        promptName: "eng_bot", // имя вашего шаблона
-        inputVariables: {
-          // если в шаблоне есть {username}, {topic} и т.п.
-          chat_history: JSON.stringify(f),
-        },
-        stream: false,
-        metadata: {
-          chatId: chatId.toString(),
-        },
-      })) as {
-        request_id: any;
-        raw_response: any;
-        prompt_blueprint: any;
-      };
+    const tutorReply = JSON.parse(
+      response.raw_response.choices?.[0]?.message.content,
+    ) as AssistantResponseType;
 
-      // Restore original console.log
-      console.log = originalConsoleLog;
-
-      const tutorReply = JSON.parse(
-        response.raw_response.choices?.[0]?.message.content,
-      ) as AssistantResponseType;
-
-      return tutorReply;
-    } catch (error) {
-      // Restore original console.log in case of error
-      console.log = originalConsoleLog;
-      throw error;
-    }
+    return tutorReply;
   }
 }
