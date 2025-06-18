@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Global, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Context, Telegraf } from "telegraf";
 import { LoggingService, InjectLogger } from "../logging";
 
+@Global()
 @Injectable()
 export class TelegramBotAdapter {
   private bot: Telegraf<Context>;
