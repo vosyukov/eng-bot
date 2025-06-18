@@ -67,24 +67,10 @@ export class TelegramService
         chatIds: [chatId],
       });
 
-      const tutorReply = await this.assistantService.request(contextMessages);
-
-      await this.messageHistoryRepository.addMessage(
+      const tutorReply = await this.assistantService.request(
         chatId,
-        tutorReply.mainMessage,
-        "assistant",
-        new Date(),
+        contextMessages,
       );
-      if (tutorReply.nextQuestion && tutorReply.tNextQuestion) {
-        const text = `${this.utilsService.escapeMarkdownV2(tutorReply.nextQuestion)}\n\n ||${this.utilsService.escapeMarkdownV2(tutorReply.tNextQuestion)}||`;
-        await this.scheduleMessageRepository.addMessage(
-          chatId,
-          text,
-          MessageType.SCHEDULED,
-          "assistant",
-          this.utilsService.getRandomFutureDate(),
-        );
-      }
 
       let text: string = "";
 
@@ -100,12 +86,27 @@ export class TelegramService
         text += `||${this.utilsService.escapeMarkdownV2(tutorReply.tMainMessage)}||`;
       }
 
-      await this.scheduleMessageRepository.addMessage(
+      await this.sendMessage(chatId, text);
+
+      await this.messageHistoryRepository.addMessage(
         chatId,
-        text,
-        MessageType.URGENT,
+        tutorReply.mainMessage,
         "assistant",
+        new Date(),
       );
+
+      if (tutorReply.nextQuestion && tutorReply.tNextQuestion) {
+        await this.scheduleMessageRepository.addMessage(
+          chatId,
+          {
+            text: tutorReply.nextQuestion,
+            translation: tutorReply.tNextQuestion,
+          },
+          MessageType.SCHEDULED,
+          "assistant",
+          this.utilsService.getRandomFutureDate(),
+        );
+      }
     });
 
     bot.launch();

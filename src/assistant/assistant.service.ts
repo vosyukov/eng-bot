@@ -10,6 +10,7 @@ export class AssistantService {
   constructor(private readonly configService: ConfigService) {}
 
   public async request(
+    chatId: number,
     contextMessages: MessageHistoryRow[],
   ): Promise<AssistantResponseType> {
     const promptLayerApiKey = this.configService.get<string>(
@@ -43,12 +44,15 @@ export class AssistantService {
         chat_history: JSON.stringify(f),
       },
       stream: false,
+      metadata: {
+        chatId: chatId.toString(),
+      },
     })) as {
       request_id: any;
       raw_response: any;
       prompt_blueprint: any;
     };
-    console.log(response);
+
     const tutorReply = JSON.parse(
       response.raw_response.choices?.[0]?.message.content,
     ) as AssistantResponseType;

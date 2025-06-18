@@ -13,13 +13,6 @@ export class RssItemRepository {
     this.db = this.databaseService.orm;
   }
 
-  /**
-   * Connection is now managed by DatabaseService
-   */
-  public async close(): Promise<void> {
-    // No need to close connections manually
-    console.log("RssItemRepository: Connection managed by DatabaseService");
-  }
   public async addItem(
     title: string,
     link: string,

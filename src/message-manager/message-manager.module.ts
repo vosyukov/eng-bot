@@ -5,6 +5,7 @@ import { MessageSchedulerService } from "./message-scheduler.service";
 import { MessageHistoryModule } from "../message-history/message-history.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { TelegramModule } from "../telegram/telegram.module";
+import { UtilsModule } from "../utils/utils.module";
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { TelegramModule } from "../telegram/telegram.module";
     MessageHistoryModule,
     ScheduleModule.forRoot(),
     forwardRef(() => TelegramModule),
+    UtilsModule,
   ],
   providers: [ScheduleMessageRepository, MessageSchedulerService],
   exports: [ScheduleMessageRepository, MessageSchedulerService],

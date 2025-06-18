@@ -15,14 +15,6 @@ export class MessageHistoryRepository {
     this.db = this.databaseService.orm;
   }
 
-  // Connection is now managed by DatabaseService
-  public async close(): Promise<void> {
-    // No need to close connections manually
-    console.log(
-      "MessageHistoryRepository: Connection managed by DatabaseService",
-    );
-  }
-
   public async addMessage(
     chatId: number,
     message: string,
