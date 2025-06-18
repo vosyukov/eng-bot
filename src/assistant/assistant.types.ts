@@ -13,8 +13,8 @@ export const ChatResponse = z.object({
   ]),
   mainMessage: z.string(),
   tMainMessage: z.string(),
-  nextQuestion: z.string(),
-  tNextQuestion: z.string(),
+  nextMessage: z.string(),
+  tNextMessage: z.string(),
 });
 
 export type RoleType = "system" | "user" | "assistant";

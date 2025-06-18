@@ -95,12 +95,12 @@ export class TelegramService
         new Date(),
       );
 
-      if (tutorReply.nextQuestion && tutorReply.tNextQuestion) {
+      if (tutorReply.nextMessage && tutorReply.tNextMessage) {
         await this.scheduleMessageRepository.addMessage(
           chatId,
           {
-            text: tutorReply.nextQuestion,
-            translation: tutorReply.tNextQuestion,
+            text: tutorReply.nextMessage,
+            translation: tutorReply.tNextMessage,
           },
           MessageType.SCHEDULED,
           "assistant",
