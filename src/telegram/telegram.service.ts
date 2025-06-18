@@ -1,4 +1,8 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import {
+  Injectable,
+  OnApplicationBootstrap,
+  OnApplicationShutdown,
+} from "@nestjs/common";
 import { TelegramBotAdapter } from "./telegram-bot.adapter";
 import { I18nService } from "../i18n/i18n.service";
 import { UtilsService } from "../utils/utils.service";
@@ -12,7 +16,9 @@ import {
 import { LoggingService, InjectLogger } from "../logging";
 
 @Injectable()
-export class TelegramService implements OnModuleInit, OnModuleDestroy {
+export class TelegramService
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   constructor(
     private readonly telegramBotAdapter: TelegramBotAdapter,
     private readonly i18nService: I18nService,
@@ -23,7 +29,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     @InjectLogger() private readonly logger: LoggingService,
   ) {}
 
-  onModuleInit() {
+  onApplicationBootstrap() {
     const bot = this.telegramBotAdapter.getBot();
 
     this.logger.log("Initializing Telegram service");
@@ -106,7 +112,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     this.logger.log("Telegram bot started");
   }
 
-  async onModuleDestroy() {
+  async onApplicationShutdown() {
     this.logger.log("Stopping Telegram bot...");
     const bot = this.telegramBotAdapter.getBot();
     await bot.stop();

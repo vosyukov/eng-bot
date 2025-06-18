@@ -2,7 +2,7 @@ import { PromptLayer } from "promptlayer";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-import { ChatResponseType } from "./assistant.types";
+import { AssistantResponseType } from "./assistant.types";
 import { MessageHistoryRow } from "../message-history/message-history.repository";
 
 @Injectable()
@@ -11,7 +11,7 @@ export class AssistantService {
 
   public async request(
     contextMessages: MessageHistoryRow[],
-  ): Promise<ChatResponseType> {
+  ): Promise<AssistantResponseType> {
     const promptLayerApiKey = this.configService.get<string>(
       "PROMPTLAYER_API_KEY",
     );
@@ -51,7 +51,7 @@ export class AssistantService {
     console.log(response);
     const tutorReply = JSON.parse(
       response.raw_response.choices?.[0]?.message.content,
-    ) as ChatResponseType;
+    ) as AssistantResponseType;
 
     return tutorReply;
   }

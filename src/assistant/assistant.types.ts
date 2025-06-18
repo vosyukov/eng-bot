@@ -18,4 +18,4 @@ export const ChatResponse = z.object({
 });
 
 export type RoleType = "system" | "user" | "assistant";
-export type ChatResponseType = z.infer<typeof ChatResponse>;
+export type AssistantResponseType = z.infer<typeof ChatResponse>;

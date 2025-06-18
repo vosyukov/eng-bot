@@ -1,8 +1,9 @@
-import { Module, OnModuleDestroy, Injectable } from "@nestjs/common";
+import { Module, OnModuleDestroy, Injectable, Global } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
+@Global()
 @Injectable()
 export class DatabaseService implements OnModuleDestroy {
   private pool: Pool;
