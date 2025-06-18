@@ -5,7 +5,7 @@ import {
   scheduledMessage,
 } from "./scheduled-message.entity";
 import { and, inArray } from "drizzle-orm";
-import { AssistantResponseType, RoleType } from "../assistant/assistant.types";
+import { RoleType } from "../assistant/assistant.types";
 import { SQL } from "drizzle-orm/sql/sql";
 import { DatabaseService } from "../database/drizzle.module";
 

@@ -37,26 +37,39 @@ export class AssistantService {
       timestamp: m.time,
     }));
 
-    const response = (await promptLayer.run({
-      promptName: "eng_bot", // имя вашего шаблона
-      inputVariables: {
-        // если в шаблоне есть {username}, {topic} и т.п.
-        chat_history: JSON.stringify(f),
-      },
-      stream: false,
-      metadata: {
-        chatId: chatId.toString(),
-      },
-    })) as {
-      request_id: any;
-      raw_response: any;
-      prompt_blueprint: any;
-    };
+    // Temporarily override console.log to suppress output from promptLayer.run
+    const originalConsoleLog = console.log;
+    console.log = () => {};
 
-    const tutorReply = JSON.parse(
-      response.raw_response.choices?.[0]?.message.content,
-    ) as AssistantResponseType;
+    try {
+      const response = (await promptLayer.run({
+        promptName: "eng_bot", // имя вашего шаблона
+        inputVariables: {
+          // если в шаблоне есть {username}, {topic} и т.п.
+          chat_history: JSON.stringify(f),
+        },
+        stream: false,
+        metadata: {
+          chatId: chatId.toString(),
+        },
+      })) as {
+        request_id: any;
+        raw_response: any;
+        prompt_blueprint: any;
+      };
 
-    return tutorReply;
+      // Restore original console.log
+      console.log = originalConsoleLog;
+
+      const tutorReply = JSON.parse(
+        response.raw_response.choices?.[0]?.message.content,
+      ) as AssistantResponseType;
+
+      return tutorReply;
+    } catch (error) {
+      // Restore original console.log in case of error
+      console.log = originalConsoleLog;
+      throw error;
+    }
   }
 }
