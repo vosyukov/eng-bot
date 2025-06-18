@@ -49,7 +49,7 @@ export class MessageHistoryRepository {
 
     const items = await this.db.select().from(messageHistory).where(
       and(...conditions),
-    );
+    ).orderBy(messageHistory.time);
 
     return items;
   }
