@@ -1,24 +1,33 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Context, Telegraf } from 'telegraf';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Context, Telegraf } from "telegraf";
+import { LoggingService, InjectLogger } from "../logging";
 
 @Injectable()
 export class TelegramBotAdapter {
   private bot: Telegraf<Context>;
 
-  constructor(private readonly configService: ConfigService) {
-    const token = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectLogger() private readonly logger: LoggingService,
+  ) {
+    const token = this.configService.get<string>("TELEGRAM_BOT_TOKEN");
     if (!token) {
-      throw new Error('TELEGRAM_BOT_TOKEN is not defined');
+      throw new Error("TELEGRAM_BOT_TOKEN is not defined");
     }
     this.bot = new Telegraf<Context>(token);
   }
 
   public async sendMessage(chatId: number, message: string): Promise<void> {
     try {
-      await this.bot.telegram.sendMessage(chatId, message, { parse_mode: 'MarkdownV2' });
+      await this.bot.telegram.sendMessage(chatId, message, {
+        parse_mode: "MarkdownV2",
+      });
     } catch (error) {
-      console.error(`Error sending message to chat ${chatId}:`, error);
+      this.logger.error(
+        `Error sending message to chat ${chatId}:`,
+        error instanceof Error ? error.stack : String(error),
+      );
     }
   }
 

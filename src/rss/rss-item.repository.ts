@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
-import { rssItems } from './rss-item.entity';
-import { DatabaseService } from '../database/drizzle.module';
+import { Injectable } from "@nestjs/common";
+import { and, eq } from "drizzle-orm";
+import { rssItems } from "./rss-item.entity";
+import { DatabaseService } from "../database/drizzle.module";
 
 export type RssItemRow = typeof rssItems.$inferSelect;
 
@@ -9,9 +9,7 @@ export type RssItemRow = typeof rssItems.$inferSelect;
 export class RssItemRepository {
   private readonly db: any;
 
-  constructor(
-    private readonly databaseService: DatabaseService,
-  ) {
+  constructor(private readonly databaseService: DatabaseService) {
     this.db = this.databaseService.orm;
   }
 
@@ -20,7 +18,7 @@ export class RssItemRepository {
    */
   public async close(): Promise<void> {
     // No need to close connections manually
-    console.log('RssItemRepository: Connection managed by DatabaseService');
+    console.log("RssItemRepository: Connection managed by DatabaseService");
   }
   public async addItem(
     title: string,
@@ -58,13 +56,16 @@ export class RssItemRepository {
           },
         });
     } catch (error) {
-      console.error('Error in upsert operation:', error);
+      console.error("Error in upsert operation:", error);
       throw error;
     }
   }
 
   public async getItemByGuid(guid: string): Promise<RssItemRow | undefined> {
-    const items = await this.db.select().from(rssItems).where(eq(rssItems.guid, guid));
+    const items = await this.db
+      .select()
+      .from(rssItems)
+      .where(eq(rssItems.guid, guid));
     return items[0];
   }
 
@@ -75,9 +76,10 @@ export class RssItemRepository {
       conditions.push(eq(rssItems.feedUrl, feedUrl));
     }
 
-    const items = await this.db.select().from(rssItems).where(
-      and(...conditions),
-    );
+    const items = await this.db
+      .select()
+      .from(rssItems)
+      .where(and(...conditions));
 
     return items;
   }

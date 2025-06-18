@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class UtilsService {
   public escapeMarkdownV2(text: string | null): string {
-    return text ? text.replace(/([_\*\[\]()~`>#+\-=|{}\.!\\])/g, '\\$1') : '';
+    return text ? text.replace(/([_\*\[\]()~`>#+\-=|{}\.!\\])/g, "\\$1") : "";
   }
 
   public getRandomFutureDate(): Date {
@@ -11,9 +11,8 @@ export class UtilsService {
     const minOffset = 1 * 60 * 1000;
     const maxOffset = 3 * 60 * 1000;
 
-    const randomOffset = Math.floor(
-      Math.random() * (maxOffset - minOffset + 1),
-    ) + minOffset;
+    const randomOffset =
+      Math.floor(Math.random() * (maxOffset - minOffset + 1)) + minOffset;
 
     return new Date(now + randomOffset);
   }

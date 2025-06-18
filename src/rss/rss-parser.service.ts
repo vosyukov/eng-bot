@@ -1,8 +1,9 @@
-import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Cron } from '@nestjs/schedule';
-import Parser from 'rss-parser';
-import { RssItemRepository } from './rss-item.repository';
+import { Injectable, OnModuleInit, Inject } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Cron } from "@nestjs/schedule";
+import Parser from "rss-parser";
+import { RssItemRepository } from "./rss-item.repository";
+import { LoggingService, InjectLogger } from "../logging";
 
 @Injectable()
 export class RssParserService implements OnModuleInit {
@@ -12,13 +13,12 @@ export class RssParserService implements OnModuleInit {
   constructor(
     private readonly rssItemRepository: RssItemRepository,
     private readonly configService: ConfigService,
-    @Inject('RSS_FEED_URLS') feedUrls: string[],
+    @Inject("RSS_FEED_URLS") feedUrls: string[],
+    @InjectLogger() private readonly logger: LoggingService,
   ) {
     this.parser = new Parser({
       customFields: {
-        item: [
-          ['content:encoded', 'content'],
-        ],
+        item: [["content:encoded", "content"]],
       },
     });
 
@@ -28,9 +28,12 @@ export class RssParserService implements OnModuleInit {
 
   // Implement OnModuleInit interface
   onModuleInit() {
-    console.log('Running initial RSS parse on startup...');
-    this.parseAndSave().catch(error => {
-      console.error('Error in initial RSS parse:', error);
+    this.logger.log("Running initial RSS parse on startup...");
+    this.parseAndSave().catch((error) => {
+      this.logger.error(
+        "Error in initial RSS parse:",
+        error instanceof Error ? error.stack : String(error),
+      );
     });
   }
 
@@ -41,7 +44,7 @@ export class RssParserService implements OnModuleInit {
   }
 
   public removeFeedUrl(url: string): void {
-    this.feedUrls = this.feedUrls.filter(feedUrl => feedUrl !== url);
+    this.feedUrls = this.feedUrls.filter((feedUrl) => feedUrl !== url);
   }
 
   public getFeedUrls(): string[] {
@@ -49,25 +52,25 @@ export class RssParserService implements OnModuleInit {
   }
 
   // Using a separate method for the cron job
-  @Cron('0 */10 * * * *')
+  @Cron("0 */10 * * * *")
   public async handleCron() {
     await this.parseAndSave();
   }
 
   // The actual implementation that can be called from elsewhere
   public async parseAndSave(): Promise<void> {
-    console.log(`Starting RSS parsing at ${new Date().toISOString()}`);
+    this.logger.log(`Starting RSS parsing at ${new Date().toISOString()}`);
 
     for (const feedUrl of this.feedUrls) {
       try {
-        console.log(`Parsing feed: ${feedUrl}`);
+        this.logger.log(`Parsing feed: ${feedUrl}`);
         const feed = await this.parser.parseURL(feedUrl);
 
-        console.log(`Found ${feed.items.length} items in feed: ${feedUrl}`);
+        this.logger.log(`Found ${feed.items.length} items in feed: ${feedUrl}`);
 
         for (const item of feed.items) {
           if (!item.title || !item.link || !item.guid) {
-            console.warn('Skipping item with missing required fields');
+            this.logger.warn("Skipping item with missing required fields");
             continue;
           }
 
@@ -83,12 +86,15 @@ export class RssParserService implements OnModuleInit {
           );
         }
 
-        console.log(`Successfully processed feed: ${feedUrl}`);
+        this.logger.log(`Successfully processed feed: ${feedUrl}`);
       } catch (error) {
-        console.error(`Error parsing feed ${feedUrl}:`, error);
+        this.logger.error(
+          `Error parsing feed ${feedUrl}:`,
+          error instanceof Error ? error.stack : String(error),
+        );
       }
     }
 
-    console.log(`Completed RSS parsing at ${new Date().toISOString()}`);
+    this.logger.log(`Completed RSS parsing at ${new Date().toISOString()}`);
   }
 }

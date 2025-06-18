@@ -1,11 +1,9 @@
-import { Module } from '@nestjs/common';
-import { MessageHistoryRepository } from './message-history.repository';
-import { DrizzleModule } from '../database/drizzle.module';
+import { Module } from "@nestjs/common";
+import { MessageHistoryRepository } from "./message-history.repository";
+import { DrizzleModule } from "../database/drizzle.module";
 
 @Module({
-  imports: [
-    DrizzleModule
-  ],
+  imports: [DrizzleModule],
   providers: [MessageHistoryRepository],
   exports: [MessageHistoryRepository],
 })

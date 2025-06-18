@@ -59,6 +59,32 @@ The application follows the NestJS modular architecture:
 - `src/rss/` - RSS module for parsing and storing feeds
 - `src/telegram/` - Telegram bot integration
 - `src/database/` - Database configuration and connection
+- `src/logging/` - Logging service and utilities
+
+## Logging
+
+The application uses a custom logging service that formats logs for both development and production environments. In production, logs are formatted for Google Cloud Logging.
+
+### Using the InjectLogger Decorator
+
+Instead of manually setting the context for each service, you can use the `InjectLogger` decorator:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { LoggingService, InjectLogger } from '../logging';
+
+@Injectable()
+export class MyService {
+  constructor(
+    @InjectLogger() private readonly logger: LoggingService
+  ) {}
+
+  someMethod() {
+    // The context is automatically set to "MyService"
+    this.logger.log('This is a log message');
+  }
+}
+```
 
 ## Development
 

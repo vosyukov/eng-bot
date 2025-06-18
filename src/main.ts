@@ -1,36 +1,44 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { TelegramService } from './telegram/telegram.service';
-import { ScheduleMessageRepository } from './message-manager/schedule-message.repository';
-import { MessageHistoryRepository } from './message-history/message-history.repository';
-import { RssItemRepository } from './rss/rss-item.repository';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { LoggingService } from "./logging/logging.service";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableShutdownHooks();
 
-  const PORT = process.env.PORT || 8080;
+  // Get the logger service
+  const logger = app.get(LoggingService);
+  logger.setContext("Bootstrap");
+
+  // Use the logger as the application logger
+  app.useLogger(logger);
+
+  const PORT = process.env.PORT || 3000;
 
   await app.listen(PORT);
-  console.log(`Server is running on http://localhost:${PORT}`);
+  logger.log(`Server is running on http://localhost:${PORT}`);
 
   const handleShutdown = async (signal: string) => {
-    console.log(`Received ${signal}. Starting graceful shutdown...`);
+    logger.log(`Received ${signal}. Starting graceful shutdown...`);
 
     try {
       await app.close();
-      console.log('Application closed');
+      logger.log("Application closed");
     } catch (error) {
-      console.error('Error during shutdown:', error);
+      logger.error(
+        "Error during shutdown:",
+        error instanceof Error ? error.stack : String(error),
+      );
     }
   };
 
-  process.once('SIGINT', () => handleShutdown('SIGINT'));
-  process.once('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.once("SIGINT", () => handleShutdown("SIGINT"));
+  process.once("SIGTERM", () => handleShutdown("SIGTERM"));
 }
 
-bootstrap().catch(error => {
-  console.error('Error starting application:', error);
+bootstrap().catch((error) => {
+  // We can't use the logger service here because it's not initialized yet
+  console.error("Error starting application:", error);
   process.exit(1);
 });

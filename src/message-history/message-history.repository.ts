@@ -1,9 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { and, inArray } from 'drizzle-orm';
-import { RoleType } from '../assistant/assistant.types';
-import { SQL } from 'drizzle-orm/sql/sql';
-import { messageHistory } from './message-history.entity';
-import { DatabaseService } from '../database/drizzle.module';
+import { Injectable } from "@nestjs/common";
+import { and, inArray } from "drizzle-orm";
+import { RoleType } from "../assistant/assistant.types";
+import { SQL } from "drizzle-orm/sql/sql";
+import { messageHistory } from "./message-history.entity";
+import { DatabaseService } from "../database/drizzle.module";
 
 export type MessageHistoryRow = typeof messageHistory.$inferSelect;
 
@@ -11,16 +11,16 @@ export type MessageHistoryRow = typeof messageHistory.$inferSelect;
 export class MessageHistoryRepository {
   private readonly db: any;
 
-  constructor(
-    private readonly databaseService: DatabaseService,
-  ) {
+  constructor(private readonly databaseService: DatabaseService) {
     this.db = this.databaseService.orm;
   }
 
   // Connection is now managed by DatabaseService
   public async close(): Promise<void> {
     // No need to close connections manually
-    console.log('MessageHistoryRepository: Connection managed by DatabaseService');
+    console.log(
+      "MessageHistoryRepository: Connection managed by DatabaseService",
+    );
   }
 
   public async addMessage(
@@ -38,18 +38,20 @@ export class MessageHistoryRepository {
     await this.db.insert(messageHistory).values(record);
   }
 
-  public async getMessages(
-    filter: { chatIds?: number[] },
-  ): Promise<MessageHistoryRow[]> {
+  public async getMessages(filter: {
+    chatIds?: number[];
+  }): Promise<MessageHistoryRow[]> {
     const conditions: SQL[] = [];
 
     if (filter.chatIds?.length) {
       conditions.push(inArray(messageHistory.chatId, filter.chatIds));
     }
 
-    const items = await this.db.select().from(messageHistory).where(
-      and(...conditions),
-    ).orderBy(messageHistory.time);
+    const items = await this.db
+      .select()
+      .from(messageHistory)
+      .where(and(...conditions))
+      .orderBy(messageHistory.time);
 
     return items;
   }

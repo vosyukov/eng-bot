@@ -1,9 +1,9 @@
-import { Injectable, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
-import { ScheduleMessageRepository } from './schedule-message.repository';
-import { MessageHistoryRepository } from '../message-history/message-history.repository';
-import { TelegramService } from '../telegram/telegram.service';
-import { MessageStatus, MessageType } from './scheduled-message.entity';
+import { Injectable, OnModuleInit, Inject, forwardRef } from "@nestjs/common";
+import { Cron } from "@nestjs/schedule";
+import { ScheduleMessageRepository } from "./schedule-message.repository";
+import { MessageHistoryRepository } from "../message-history/message-history.repository";
+import { TelegramService } from "../telegram/telegram.service";
+import { MessageStatus, MessageType } from "./scheduled-message.entity";
 
 @Injectable()
 export class MessageSchedulerService implements OnModuleInit {
@@ -15,13 +15,13 @@ export class MessageSchedulerService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    console.log('Message scheduler service initialized');
+    console.log("Message scheduler service initialized");
   }
 
   /**
    * Process urgent messages every second
    */
-  @Cron('*/1 * * * * *')
+  @Cron("*/1 * * * * *")
   async processUrgentMessages() {
     const items = await this.scheduleMessageRepository.getMessages({
       types: [MessageType.URGENT],
@@ -43,7 +43,7 @@ export class MessageSchedulerService implements OnModuleInit {
   /**
    * Process scheduled messages every 30 seconds
    */
-  @Cron('*/30 * * * * *')
+  @Cron("*/30 * * * * *")
   async processScheduledMessages() {
     const items = await this.scheduleMessageRepository.getMessages({
       types: [MessageType.SCHEDULED],
@@ -55,7 +55,12 @@ export class MessageSchedulerService implements OnModuleInit {
         continue;
       }
       await this.telegramService.sendMessage(item.chatId, item.message);
-      this.messageHistoryRepository.addMessage(item.chatId, item.message, 'assistant', new Date());
+      this.messageHistoryRepository.addMessage(
+        item.chatId,
+        item.message,
+        "assistant",
+        new Date(),
+      );
 
       await this.scheduleMessageRepository.updateStatus(
         { ids: [item.id] },

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 export interface Localization {
   startMessage: string;
@@ -8,16 +8,16 @@ export interface Localization {
 export class I18nService {
   private translations: Record<string, Localization> = {
     ru: {
-      startMessage: 'Привет! Я бот для практики английского. Давай общаться!',
+      startMessage: "Привет! Я бот для практики английского. Давай общаться!",
     },
     en: {
       startMessage: "Hi! I'm your English practice bot. Let's chat!",
     },
     es: {
-      startMessage: '¡Hola! Soy tu bot de práctica de inglés. ¡Hablemos!',
+      startMessage: "¡Hola! Soy tu bot de práctica de inglés. ¡Hablemos!",
     },
     de: {
-      startMessage: 'Hallo! Ich bin dein Englisch-Übungsbot. Lass uns reden!',
+      startMessage: "Hallo! Ich bin dein Englisch-Übungsbot. Lass uns reden!",
     },
   };
 
@@ -28,8 +28,9 @@ export class I18nService {
    * @returns The localized text
    */
   public getLocalizedText(key: keyof Localization, lang: string): string {
-    const defaultLang = 'en';
-    const localization = this.translations[lang] || this.translations[defaultLang];
+    const defaultLang = "en";
+    const localization =
+      this.translations[lang] || this.translations[defaultLang];
     return localization[key];
   }
 

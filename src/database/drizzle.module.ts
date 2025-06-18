@@ -1,7 +1,7 @@
-import { Module, OnModuleDestroy, Injectable } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { Module, OnModuleDestroy, Injectable } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
 @Injectable()
 export class DatabaseService implements OnModuleDestroy {
@@ -11,21 +11,21 @@ export class DatabaseService implements OnModuleDestroy {
 
   constructor(configService: ConfigService) {
     this.pool = new Pool({
-      connectionString: configService.get<string>('DATABASE_URL'),
+      connectionString: configService.get<string>("DATABASE_URL"),
     });
     this.orm = drizzle(this.pool);
   }
 
   async onModuleDestroy() {
     if (this.isPoolClosed) {
-      console.log('Database connections already closed, skipping...');
+      console.log("Database connections already closed, skipping...");
       return;
     }
 
-    console.log('Closing database connections...');
+    console.log("Closing database connections...");
     await this.pool.end();
     this.isPoolClosed = true;
-    console.log('Database connections closed');
+    console.log("Database connections closed");
   }
 }
 
@@ -34,11 +34,11 @@ export class DatabaseService implements OnModuleDestroy {
   providers: [
     DatabaseService,
     {
-      provide: 'DRIZZLE_ORM',
+      provide: "DRIZZLE_ORM",
       useFactory: (databaseService: DatabaseService) => databaseService.orm,
       inject: [DatabaseService],
     },
   ],
-  exports: ['DRIZZLE_ORM', DatabaseService],
+  exports: ["DRIZZLE_ORM", DatabaseService],
 })
 export class DrizzleModule {}
