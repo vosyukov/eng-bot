@@ -1,13 +1,18 @@
 import { PromptLayer } from "promptlayer";
-import { Injectable } from "@nestjs/common";
+import { Injectable, LoggerService } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 import { AssistantResponseType } from "./assistant.types";
 import { MessageHistoryRow } from "../message-history/message-history.repository";
+import { InjectLogger } from "../logging";
 
 @Injectable()
 export class AssistantService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectLogger()
+    private readonly loggerService: LoggerService,
+  ) {}
 
   public async request(
     chatId: number,
@@ -75,6 +80,7 @@ export class AssistantService {
       response.raw_response.choices?.[0]?.message.content,
     ) as AssistantResponseType;
 
+    this.loggerService.log("tutorReply: ", { chatId, ...tutorReply });
     return tutorReply;
   }
 }

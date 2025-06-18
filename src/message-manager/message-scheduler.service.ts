@@ -23,7 +23,6 @@ export class MessageSchedulerService {
 
   @Cron("*/10 * * * * *")
   async processScheduledMessages() {
-    this.loggingService.log("Processing scheduled messages...");
     const items = await this.scheduleMessageRepository.getMessages({
       types: [MessageType.SCHEDULED],
       statuses: [MessageStatus.NEW],
