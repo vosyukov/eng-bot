@@ -31,6 +31,12 @@ export class UserService {
           languageCode: telegramUser.language_code,
         },
       );
+
+      if (!updatedUser) {
+        // If update fails, return the existing user
+        return existingUser;
+      }
+
       return updatedUser;
     } else {
       // Create new user
