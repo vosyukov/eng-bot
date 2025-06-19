@@ -55,12 +55,10 @@ export class TelegramService
           });
           this.logger.log(`User saved: ${savedUser.telegramId}`);
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
           const errorStack = error instanceof Error ? error.stack : undefined;
-          this.logger.error(
-            `Failed to save user: ${errorMessage}`,
-            errorStack,
-          );
+          this.logger.error(`Failed to save user: ${errorMessage}`, errorStack);
         }
       }
 
