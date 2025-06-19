@@ -7,6 +7,7 @@ export const user = pgTable("user", {
   lastName: text("last_name"),
   username: text("username"),
   languageCode: text("language_code"),
+  city: text("city"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
