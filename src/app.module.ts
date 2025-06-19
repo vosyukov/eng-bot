@@ -8,6 +8,7 @@ import { MessageManagerModule } from "./message-manager/message-manager.module";
 import { AssistantModule } from "./assistant/assistant.module";
 import { HealthcheckModule } from "./healthcheck/healthcheck.module";
 import { LoggingModule } from "./logging/logging.module";
+import { UserModule } from "./user/user.module";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { LoggingModule } from "./logging/logging.module";
     MessageManagerModule,
     AssistantModule,
     HealthcheckModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

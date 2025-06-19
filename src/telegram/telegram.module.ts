@@ -7,6 +7,7 @@ import { UtilsModule } from "../utils/utils.module";
 import { AssistantModule } from "../assistant/assistant.module";
 import { MessageHistoryModule } from "../message-history/message-history.module";
 import { MessageManagerModule } from "../message-manager/message-manager.module";
+import { UserModule } from "../user/user.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MessageManagerModule } from "../message-manager/message-manager.module"
     AssistantModule,
     MessageHistoryModule,
     forwardRef(() => MessageManagerModule),
+    UserModule,
   ],
   providers: [TelegramService, TelegramBotAdapter],
   exports: [TelegramService],

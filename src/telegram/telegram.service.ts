@@ -14,6 +14,7 @@ import {
   MessageType,
 } from "../message-manager/scheduled-message.entity";
 import { LoggingService, InjectLogger } from "../logging";
+import { UserService } from "../user/user.service";
 
 @Injectable()
 export class TelegramService
@@ -26,6 +27,7 @@ export class TelegramService
     private readonly assistantService: AssistantService,
     private readonly messageHistoryRepository: MessageHistoryRepository,
     private readonly scheduleMessageRepository: ScheduleMessageRepository,
+    private readonly userService: UserService,
     @InjectLogger() private readonly logger: LoggingService,
   ) {}
 
@@ -40,6 +42,26 @@ export class TelegramService
         "startMessage",
         lang,
       );
+
+      // Save user data to database
+      if (ctx.from) {
+        try {
+          const savedUser = await this.userService.saveUser({
+            id: ctx.from.id,
+            first_name: ctx.from.first_name,
+            last_name: ctx.from.last_name,
+            username: ctx.from.username,
+            language_code: ctx.from.language_code,
+          });
+          this.logger.log(`User saved: ${savedUser.telegramId}`);
+        } catch (error) {
+          this.logger.error(
+            `Failed to save user: ${error.message}`,
+            error.stack,
+          );
+        }
+      }
+
       await ctx.reply(startMessage);
     });
 

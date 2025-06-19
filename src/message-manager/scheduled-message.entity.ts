@@ -7,7 +7,6 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { AssistantResponseType } from "../assistant/assistant.types";
 export enum MessageStatus {
   NEW,
   PROCESSING,

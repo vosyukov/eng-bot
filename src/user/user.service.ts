@@ -1,0 +1,54 @@
+import { Injectable } from "@nestjs/common";
+import { UserRepository } from "./user.repository";
+import { UserRow } from "./user.entity";
+
+@Injectable()
+export class UserService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  /**
+   * Creates a new user or updates an existing one based on Telegram user data
+   */
+  async saveUser(telegramUser: {
+    id: number;
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+    language_code?: string;
+  }): Promise<UserRow> {
+    const existingUser = await this.userRepository.findByTelegramId(
+      telegramUser.id,
+    );
+
+    if (existingUser) {
+      // Update existing user
+      const updatedUser = await this.userRepository.updateUser(
+        telegramUser.id,
+        {
+          firstName: telegramUser.first_name,
+          lastName: telegramUser.last_name,
+          username: telegramUser.username,
+          languageCode: telegramUser.language_code,
+        },
+      );
+      return updatedUser;
+    } else {
+      // Create new user
+      const newUser = await this.userRepository.createUser({
+        telegramId: telegramUser.id,
+        firstName: telegramUser.first_name,
+        lastName: telegramUser.last_name,
+        username: telegramUser.username,
+        languageCode: telegramUser.language_code,
+      });
+      return newUser;
+    }
+  }
+
+  /**
+   * Finds a user by their Telegram ID
+   */
+  async findUserByTelegramId(telegramId: number): Promise<UserRow | undefined> {
+    return this.userRepository.findByTelegramId(telegramId);
+  }
+}
