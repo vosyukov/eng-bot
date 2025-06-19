@@ -6,13 +6,7 @@ import {
 import { TelegramBotAdapter } from "./telegram-bot.adapter";
 import { I18nService } from "../i18n/i18n.service";
 import { UtilsService } from "../utils/utils.service";
-import { AssistantService } from "../assistant/assistant.service";
-import { MessageHistoryRepository } from "../message-history/message-history.repository";
-import { ScheduleMessageRepository } from "../message-manager/schedule-message.repository";
-import {
-  MessageStatus,
-  MessageType,
-} from "../message-manager/scheduled-message.entity";
+import { MessageManagerService } from "../message-manager/message-manager.service";
 import { LoggingService, InjectLogger } from "../logging";
 import { UserService } from "../user/user.service";
 
@@ -24,9 +18,7 @@ export class TelegramService
     private readonly telegramBotAdapter: TelegramBotAdapter,
     private readonly i18nService: I18nService,
     private readonly utilsService: UtilsService,
-    private readonly assistantService: AssistantService,
-    private readonly messageHistoryRepository: MessageHistoryRepository,
-    private readonly scheduleMessageRepository: ScheduleMessageRepository,
+    private readonly messageManagerService: MessageManagerService,
     private readonly userService: UserService,
     @InjectLogger() private readonly logger: LoggingService,
   ) {}
@@ -52,6 +44,7 @@ export class TelegramService
             last_name: ctx.from.last_name,
             username: ctx.from.username,
             language_code: ctx.from.language_code,
+            chat_id: ctx.chat?.id,
           });
           this.logger.log(`User saved: ${savedUser.telegramId}`);
         } catch (error) {
@@ -69,66 +62,23 @@ export class TelegramService
       const userMessage = ctx.message.text;
       const timestamp = new Date(ctx.message.date * 1000);
       const chatId = ctx.chat.id;
+      const telegramId = ctx.from.id;
 
-      await this.scheduleMessageRepository.updateStatus(
-        {
-          chatIds: [chatId],
-          types: [MessageType.SCHEDULED],
-        },
-        MessageStatus.REVOKED,
-      );
+      // Get user from database
+      const user = await this.userService.findUserByTelegramId(telegramId);
+      if (!user) {
+        this.logger.error(`User not found for telegramId: ${telegramId}`);
+        return;
+      }
 
-      await this.messageHistoryRepository.addMessage(
-        chatId,
+      const { text } = await this.messageManagerService.handleTextMessage(
         userMessage,
-        "user",
         timestamp,
+        user,
+        telegramId,
       );
-
-      const contextMessages = await this.messageHistoryRepository.getMessages({
-        chatIds: [chatId],
-      });
-
-      const tutorReply = await this.assistantService.request(
-        chatId,
-        contextMessages,
-      );
-
-      let text: string = "";
-
-      if (tutorReply.grammarNote) {
-        text += `>${this.utilsService.escapeMarkdownV2(tutorReply.grammarNote)}\n\n`;
-      }
-
-      if (tutorReply.mainMessage) {
-        text += `${this.utilsService.escapeMarkdownV2(tutorReply.mainMessage)}\n\n`;
-      }
-
-      if (tutorReply.tMainMessage) {
-        text += `||${this.utilsService.escapeMarkdownV2(tutorReply.tMainMessage)}||`;
-      }
 
       await this.sendMessage(chatId, text);
-
-      await this.messageHistoryRepository.addMessage(
-        chatId,
-        tutorReply.mainMessage,
-        "assistant",
-        new Date(),
-      );
-
-      if (tutorReply.nextMessage && tutorReply.tNextMessage) {
-        await this.scheduleMessageRepository.addMessage(
-          chatId,
-          {
-            text: tutorReply.nextMessage,
-            translation: tutorReply.tNextMessage,
-          },
-          MessageType.SCHEDULED,
-          "assistant",
-          this.utilsService.getRandomFutureDate(),
-        );
-      }
     });
 
     bot.launch();

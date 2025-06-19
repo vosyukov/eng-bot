@@ -6,6 +6,7 @@ import { TelegramService } from "../telegram/telegram.service";
 import { MessageStatus, MessageType } from "./scheduled-message.entity";
 import { UtilsService } from "../utils/utils.service";
 import { InjectLogger, LoggingService } from "../logging";
+import { UserService } from "../user/user.service";
 
 @Injectable()
 export class MessageSchedulerService {
@@ -15,6 +16,7 @@ export class MessageSchedulerService {
     @Inject(forwardRef(() => TelegramService))
     private readonly telegramService: TelegramService,
     private readonly utilsService: UtilsService,
+    private readonly userService: UserService,
     @InjectLogger()
     private readonly loggingService: LoggingService,
   ) {}
@@ -30,10 +32,13 @@ export class MessageSchedulerService {
 
     for await (const item of items) {
       const text = `${this.utilsService.escapeMarkdownV2(item.message.text)}\n\n ||${this.utilsService.escapeMarkdownV2(item.message.translation)}||`;
-
-      await this.telegramService.sendMessage(item.chatId, text);
+      const user = await this.userService.findUserById(item.userId);
+      if (!user) {
+        continue;
+      }
+      await this.telegramService.sendMessage(user.telegramId, text);
       this.messageHistoryRepository.addMessage(
-        item.chatId,
+        item.userId,
         item.message.text,
         "assistant",
         new Date(),

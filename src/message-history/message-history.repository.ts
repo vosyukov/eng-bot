@@ -16,14 +16,14 @@ export class MessageHistoryRepository {
   }
 
   public async addMessage(
-    chatId: number,
+    userId: string,
     message: string,
     sender: RoleType,
     time: Date = new Date(),
   ): Promise<void> {
     const record: typeof messageHistory.$inferInsert = {
       time,
-      chatId,
+      userId,
       message,
       sender,
     };
@@ -31,12 +31,12 @@ export class MessageHistoryRepository {
   }
 
   public async getMessages(filter: {
-    chatIds?: number[];
+    userIds?: string[];
   }): Promise<MessageHistoryRow[]> {
     const conditions: SQL[] = [];
 
-    if (filter.chatIds?.length) {
-      conditions.push(inArray(messageHistory.chatId, filter.chatIds));
+    if (filter.userIds?.length) {
+      conditions.push(inArray(messageHistory.userId, filter.userIds));
     }
 
     const items = await this.db

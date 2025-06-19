@@ -15,6 +15,7 @@ export class UserService {
     last_name?: string;
     username?: string;
     language_code?: string;
+    chat_id?: number;
   }): Promise<UserRow> {
     const existingUser = await this.userRepository.findByTelegramId(
       telegramUser.id,
@@ -29,6 +30,7 @@ export class UserService {
           lastName: telegramUser.last_name,
           username: telegramUser.username,
           languageCode: telegramUser.language_code,
+          chatId: telegramUser.chat_id,
         },
       );
 
@@ -42,6 +44,7 @@ export class UserService {
       // Create new user
       const newUser = await this.userRepository.createUser({
         telegramId: telegramUser.id,
+        chatId: telegramUser.chat_id,
         firstName: telegramUser.first_name,
         lastName: telegramUser.last_name,
         username: telegramUser.username,
@@ -56,5 +59,12 @@ export class UserService {
    */
   async findUserByTelegramId(telegramId: number): Promise<UserRow | undefined> {
     return this.userRepository.findByTelegramId(telegramId);
+  }
+
+  /**
+   * Finds a user by their UUID
+   */
+  async findUserById(id: string): Promise<UserRow | undefined> {
+    return this.userRepository.findById(id);
   }
 }

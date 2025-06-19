@@ -15,7 +15,7 @@ export class AssistantService {
   ) {}
 
   public async request(
-    chatId: number,
+    userId: string,
     contextMessages: MessageHistoryRow[],
   ): Promise<AssistantResponseType> {
     const promptLayerApiKey = this.configService.get<string>(
@@ -68,7 +68,7 @@ export class AssistantService {
       },
       stream: false,
       metadata: {
-        chatId: chatId.toString(),
+        userId,
       },
     })) as {
       request_id: any;
@@ -80,7 +80,7 @@ export class AssistantService {
       response.raw_response.choices?.[0]?.message.content,
     ) as AssistantResponseType;
 
-    this.loggerService.log("tutorReply: ", { chatId, ...tutorReply });
+    this.loggerService.log("tutorReply: ", { userId, ...tutorReply });
     return tutorReply;
   }
 }

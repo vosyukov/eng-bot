@@ -20,7 +20,7 @@ export class ScheduleMessageRepository {
   }
 
   public async addMessage(
-    chatId: number,
+    userId: string,
     message: { text: string; translation: string },
     type: MessageType,
     sender: RoleType,
@@ -28,7 +28,7 @@ export class ScheduleMessageRepository {
   ): Promise<void> {
     const record: typeof scheduledMessage.$inferInsert = {
       time,
-      chatId,
+      userId,
       message,
       status: MessageStatus.NEW,
       type,
@@ -60,7 +60,7 @@ export class ScheduleMessageRepository {
   }
 
   public async updateStatus(
-    criteria: { ids?: string[]; chatIds?: number[]; types?: MessageType[] },
+    criteria: { ids?: string[]; userIds?: string[]; types?: MessageType[] },
     status: MessageStatus,
   ): Promise<void> {
     const conditions: SQL[] = [];
@@ -69,8 +69,8 @@ export class ScheduleMessageRepository {
       conditions.push(inArray(scheduledMessage.id, criteria.ids));
     }
 
-    if (criteria.chatIds?.length) {
-      conditions.push(inArray(scheduledMessage.chatId, criteria.chatIds));
+    if (criteria.userIds?.length) {
+      conditions.push(inArray(scheduledMessage.userId, criteria.userIds));
     }
 
     if (criteria.types?.length) {

@@ -30,6 +30,15 @@ export class UserRepository {
     return foundUser;
   }
 
+  public async findById(id: string): Promise<UserRow | undefined> {
+    const [foundUser] = await this.db
+      .select()
+      .from(user)
+      .where(eq(user.id, id))
+      .limit(1);
+    return foundUser;
+  }
+
   public async updateUser(
     telegramId: number,
     userData: Partial<UserInsert>,

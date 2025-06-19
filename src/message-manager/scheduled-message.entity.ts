@@ -1,5 +1,4 @@
 import {
-  integer,
   jsonb,
   pgTable,
   smallint,
@@ -20,7 +19,7 @@ export const scheduledMessage = pgTable("scheduled_message", {
   id: uuid("id").primaryKey().defaultRandom(),
   time: timestamp("time").notNull(),
   sender: text("sender").notNull(),
-  chatId: integer("chat_id").notNull(),
+  userId: text("user_id").notNull(),
   message: jsonb("message")
     .$type<{ text: string; translation: string }>()
     .notNull(),
