@@ -50,10 +50,10 @@ export class MessageManagerService {
       contextMessages,
     );
 
-    if (tutorReply.userProfile) {
+    if (tutorReply.userProfileInfo) {
       await this.userRepository.updateUser(user.telegramId, {
-        city: tutorReply.userProfile.city,
-        firstName: tutorReply.userProfile.name,
+        city: tutorReply.userProfileInfo.city,
+        firstName: tutorReply.userProfileInfo.name,
       });
     }
 
