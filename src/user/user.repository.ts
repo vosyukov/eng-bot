@@ -32,8 +32,6 @@ export class UserRepository {
   }
 
   public async findById(id: string): Promise<UserRow | undefined> {
-    console.log(id);
-    throw new Error("Not implemented");
     const [foundUser] = await this.db
       .select()
       .from(user)
