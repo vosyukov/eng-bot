@@ -7,10 +7,7 @@ export interface UserMessage {
 }
 
 export const ChatResponse = z.object({
-  grammarNote: z.union([
-    z.string().min(1, { message: "grammarNote не может быть пустой строкой" }),
-    z.null(),
-  ]),
+  grammarNote: z.string().nullable().optional().default(null),
   mainMessage: z.string(),
   tMainMessage: z.string(),
   nextMessage: z.string(),
