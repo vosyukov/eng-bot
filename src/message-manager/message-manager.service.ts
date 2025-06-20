@@ -6,6 +6,7 @@ import { UtilsService } from "../utils/utils.service";
 import { MessageStatus, MessageType } from "./scheduled-message.entity";
 import { InjectLogger, LoggingService } from "../logging";
 import { UserRow } from "../user/user.entity";
+import { UserRepository } from "../user/user.repository";
 
 @Injectable()
 export class MessageManagerService {
@@ -13,6 +14,7 @@ export class MessageManagerService {
     private readonly scheduleMessageRepository: ScheduleMessageRepository,
     private readonly messageHistoryRepository: MessageHistoryRepository,
     private readonly assistantService: AssistantService,
+    private readonly userRepository: UserRepository,
     private readonly utilsService: UtilsService,
     @InjectLogger() private readonly logger: LoggingService,
   ) {}
@@ -47,6 +49,13 @@ export class MessageManagerService {
       user,
       contextMessages,
     );
+
+    if (tutorReply.userProfile) {
+      await this.userRepository.updateUser(user.telegramId, {
+        city: tutorReply.userProfile.city,
+        firstName: tutorReply.userProfile.name,
+      });
+    }
 
     let text: string = "";
 

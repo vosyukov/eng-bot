@@ -15,6 +15,13 @@ export const ChatResponse = z.object({
   tMainMessage: z.string(),
   nextMessage: z.string(),
   tNextMessage: z.string(),
+  userProfile: z.union([
+    z.object({
+      name: z.string().nullable(),
+      city: z.string().nullable(),
+    }),
+    z.null(),
+  ]),
 });
 
 export type RoleType = "system" | "user" | "assistant";

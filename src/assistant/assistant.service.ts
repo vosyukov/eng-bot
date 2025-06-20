@@ -66,7 +66,10 @@ export class AssistantService {
       promptName: "eng_bot", // имя вашего шаблона
       inputVariables: {
         chat_history: JSON.stringify(f),
-        user_profile: JSON.stringify({ name: user.firstName, city: user.city }),
+        userProfileInfo: JSON.stringify({
+          name: user.firstName,
+          city: user.city,
+        }),
       },
       stream: false,
       metadata: {
