@@ -44,7 +44,7 @@ export class MessageManagerService {
     });
 
     const tutorReply = await this.assistantService.request(
-      user.id,
+      user,
       contextMessages,
     );
 
@@ -70,8 +70,9 @@ export class MessageManagerService {
     );
 
     if (tutorReply.nextMessage && tutorReply.tNextMessage) {
+      console.log(user);
       await this.scheduleMessageRepository.addMessage(
-        telegramId.toString(),
+        user.id,
         {
           text: tutorReply.nextMessage,
           translation: tutorReply.tNextMessage,

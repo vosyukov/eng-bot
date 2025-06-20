@@ -20,8 +20,9 @@ export class UserRepository {
   }
 
   public async findByTelegramId(
-    telegramId: number,
+    telegramId: string,
   ): Promise<UserRow | undefined> {
+    console.log(telegramId);
     const [foundUser] = await this.db
       .select()
       .from(user)
@@ -31,6 +32,8 @@ export class UserRepository {
   }
 
   public async findById(id: string): Promise<UserRow | undefined> {
+    console.log(id);
+    throw new Error("Not implemented");
     const [foundUser] = await this.db
       .select()
       .from(user)
@@ -40,7 +43,7 @@ export class UserRepository {
   }
 
   public async updateUser(
-    telegramId: number,
+    telegramId: string,
     userData: Partial<UserInsert>,
   ): Promise<UserRow | undefined> {
     const [updatedUser] = await this.db

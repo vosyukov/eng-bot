@@ -5,6 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { AssistantResponseType } from "./assistant.types";
 import { MessageHistoryRow } from "../message-history/message-history.repository";
 import { InjectLogger } from "../logging";
+import { UserRow } from "../user/user.entity";
 
 @Injectable()
 export class AssistantService {
@@ -15,7 +16,7 @@ export class AssistantService {
   ) {}
 
   public async request(
-    userId: string,
+    user: UserRow,
     contextMessages: MessageHistoryRow[],
   ): Promise<AssistantResponseType> {
     const promptLayerApiKey = this.configService.get<string>(
@@ -65,10 +66,11 @@ export class AssistantService {
       promptName: "eng_bot", // имя вашего шаблона
       inputVariables: {
         chat_history: JSON.stringify(f),
+        user_profile: JSON.stringify({ name: user.firstName, city: user.city }),
       },
       stream: false,
       metadata: {
-        userId,
+        userId: user.id,
       },
     })) as {
       request_id: any;
@@ -80,7 +82,7 @@ export class AssistantService {
       response.raw_response.choices?.[0]?.message.content,
     ) as AssistantResponseType;
 
-    this.loggerService.log("tutorReply: ", { userId, ...tutorReply });
+    this.loggerService.log("tutorReply: ", { userId: user.id, ...tutorReply });
     return tutorReply;
   }
 }

@@ -32,6 +32,7 @@ export class MessageSchedulerService {
 
     for await (const item of items) {
       const text = `${this.utilsService.escapeMarkdownV2(item.message.text)}\n\n ||${this.utilsService.escapeMarkdownV2(item.message.translation)}||`;
+      console.log(item);
       const user = await this.userService.findUserById(item.userId);
       if (!user) {
         continue;

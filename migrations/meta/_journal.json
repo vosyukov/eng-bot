@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1750272816797,
-      "tag": "0000_zippy_abomination",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1750272816798,
-      "tag": "0001_user_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1750359533029,
-      "tag": "0002_steady_blizzard",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1750364166342,
-      "tag": "0003_rapid_black_tom",
+      "when": 1750432492215,
+      "tag": "0000_watery_machine_man",
       "breakpoints": true
     }
   ]

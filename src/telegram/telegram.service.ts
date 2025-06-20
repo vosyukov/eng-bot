@@ -39,12 +39,12 @@ export class TelegramService
       if (ctx.from) {
         try {
           const savedUser = await this.userService.saveUser({
-            id: ctx.from.id,
+            telegramId: ctx.from.id.toString(),
             first_name: ctx.from.first_name,
             last_name: ctx.from.last_name,
             username: ctx.from.username,
             language_code: ctx.from.language_code,
-            chat_id: ctx.chat?.id,
+            chat_id: ctx.chat?.id.toString(),
           });
           this.logger.log(`User saved: ${savedUser.telegramId}`);
         } catch (error) {
@@ -61,7 +61,7 @@ export class TelegramService
     bot.on("text", async (ctx) => {
       const userMessage = ctx.message.text;
       const timestamp = new Date(ctx.message.date * 1000);
-      const chatId = ctx.chat.id;
+      const chatId = ctx.chat.id.toString();
       const telegramId = ctx.from.id;
 
       // Get user from database
@@ -92,7 +92,7 @@ export class TelegramService
     this.logger.log("Telegram bot stopped");
   }
 
-  public async sendMessage(chatId: number, message: string): Promise<void> {
-    await this.telegramBotAdapter.sendMessage(chatId, message);
+  public async sendMessage(chatId: string, message: string): Promise<void> {
+    await this.telegramBotAdapter.sendMessage(Number(chatId), message);
   }
 }

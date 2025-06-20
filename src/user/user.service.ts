@@ -10,21 +10,21 @@ export class UserService {
    * Creates a new user or updates an existing one based on Telegram user data
    */
   async saveUser(telegramUser: {
-    id: number;
+    telegramId: string;
     first_name?: string;
     last_name?: string;
     username?: string;
     language_code?: string;
-    chat_id?: number;
+    chat_id?: string;
   }): Promise<UserRow> {
     const existingUser = await this.userRepository.findByTelegramId(
-      telegramUser.id,
+      telegramUser.telegramId,
     );
 
     if (existingUser) {
       // Update existing user
       const updatedUser = await this.userRepository.updateUser(
-        telegramUser.id,
+        telegramUser.telegramId,
         {
           firstName: telegramUser.first_name,
           lastName: telegramUser.last_name,
@@ -43,7 +43,7 @@ export class UserService {
     } else {
       // Create new user
       const newUser = await this.userRepository.createUser({
-        telegramId: telegramUser.id,
+        telegramId: telegramUser.telegramId,
         chatId: telegramUser.chat_id,
         firstName: telegramUser.first_name,
         lastName: telegramUser.last_name,
@@ -58,7 +58,7 @@ export class UserService {
    * Finds a user by their Telegram ID
    */
   async findUserByTelegramId(telegramId: number): Promise<UserRow | undefined> {
-    return this.userRepository.findByTelegramId(telegramId);
+    return this.userRepository.findByTelegramId(telegramId.toString());
   }
 
   /**
