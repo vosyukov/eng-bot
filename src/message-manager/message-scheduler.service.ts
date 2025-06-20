@@ -31,7 +31,7 @@ export class MessageSchedulerService {
     });
 
     for await (const item of items) {
-      if (new Date() >= item.time) {
+      if (new Date() <= item.time) {
         continue;
       }
       const text = `${this.utilsService.escapeMarkdownV2(item.message.text)}\n\n ||${this.utilsService.escapeMarkdownV2(item.message.translation)}||`;
