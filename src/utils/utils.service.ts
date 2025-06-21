@@ -8,8 +8,8 @@ export class UtilsService {
 
   public getRandomFutureDate(): Date {
     const now = Date.now();
-    const minOffset = 1 * 60 * 1000;
-    const maxOffset = 3 * 60 * 1000;
+    const minOffset = 5 * 60 * 1000;
+    const maxOffset = 15 * 60 * 1000;
 
     const randomOffset =
       Math.floor(Math.random() * (maxOffset - minOffset + 1)) + minOffset;
