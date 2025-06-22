@@ -23,6 +23,10 @@ export class AssistantService {
       "PROMPTLAYER_API_KEY",
     );
 
+    const promptLayerVersion = this.configService.get<string | undefined>(
+      "PROMPTLAYER_VERSION",
+    );
+
     const promptLayerOriginal = new PromptLayer({
       apiKey: promptLayerApiKey,
       enableTracing: true,
@@ -63,7 +67,10 @@ export class AssistantService {
     }));
 
     const response = (await promptLayer.run({
-      promptName: "eng_bot", // имя вашего шаблона
+      promptName: "eng_bot",
+      promptVersion: promptLayerVersion
+        ? Number(promptLayerVersion)
+        : undefined,
       inputVariables: {
         chat_history: JSON.stringify(f),
         userProfileInfo: JSON.stringify({
