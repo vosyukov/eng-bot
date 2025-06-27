@@ -1,0 +1,1 @@
+declare module '@haensl/google-analytics/measurement-protocol';

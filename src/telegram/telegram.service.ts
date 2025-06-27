@@ -9,7 +9,14 @@ import { UtilsService } from "../utils/utils.service";
 import { MessageManagerService } from "../message-manager/message-manager.service";
 import { LoggingService, InjectLogger } from "../logging";
 import { UserService } from "../user/user.service";
+import fetch from "node-fetch";
+import { init, event } from "@haensl/google-analytics/measurement-protocol";
 
+init({
+  fetch,
+  measurementId: "G-JQQB5R0FRC",
+  measurementSecret: "Gd5HjuNVQ96YNPnAq3h-Lg",
+});
 @Injectable()
 export class TelegramService
   implements OnApplicationBootstrap, OnApplicationShutdown
@@ -70,7 +77,7 @@ export class TelegramService
         this.logger.error(`User not found for telegramId: ${telegramId}`);
         return;
       }
-
+      event({ name: "text-message", params: { user_id: user.id } });
       const { text } = await this.messageManagerService.handleTextMessage(
         userMessage,
         timestamp,
