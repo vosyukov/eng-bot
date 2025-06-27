@@ -5,14 +5,12 @@ import {
 } from "@nestjs/common";
 import { TelegramBotAdapter } from "./telegram-bot.adapter";
 import { I18nService } from "../i18n/i18n.service";
-import { UtilsService } from "../utils/utils.service";
 import { MessageManagerService } from "../message-manager/message-manager.service";
 import { LoggingService, InjectLogger } from "../logging";
 import { UserService } from "../user/user.service";
-import fetch from "node-fetch";
 
-// Will be initialized in onApplicationBootstrap
-let gaModule: any = null;
+import * as amplitude from "@amplitude/analytics-node";
+amplitude.init("5277c82bcd0b1af4935a287e06bb33f2");
 @Injectable()
 export class TelegramService
   implements OnApplicationBootstrap, OnApplicationShutdown
@@ -20,7 +18,6 @@ export class TelegramService
   constructor(
     private readonly telegramBotAdapter: TelegramBotAdapter,
     private readonly i18nService: I18nService,
-    private readonly utilsService: UtilsService,
     private readonly messageManagerService: MessageManagerService,
     private readonly userService: UserService,
     @InjectLogger() private readonly logger: LoggingService,
@@ -30,25 +27,6 @@ export class TelegramService
     const bot = this.telegramBotAdapter.getBot();
 
     this.logger.log("Initializing Telegram service");
-
-    try {
-      // Dynamically import the Google Analytics module
-      gaModule = await import("@haensl/google-analytics/measurement-protocol");
-      gaModule.init({
-        fetch,
-        measurementId: "G-JQQB5R0FRC",
-        measurementSecret: "Gd5HjuNVQ96YNPnAq3h-Lg",
-      });
-      this.logger.log("Google Analytics initialized");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(
-        `Failed to initialize Google Analytics: ${errorMessage}`,
-        errorStack,
-      );
-    }
 
     bot.start(async (ctx) => {
       const lang = ctx.from?.language_code?.split("-")[0] || "en";
@@ -92,19 +70,15 @@ export class TelegramService
         this.logger.error(`User not found for telegramId: ${telegramId}`);
         return;
       }
-      // Track event if Google Analytics is initialized
-      if (gaModule) {
-        try {
-          gaModule.event({
-            name: "text-message",
-            params: { user_id: user.id },
-          });
-        } catch (error) {
-          this.logger.error(
-            `Failed to track event: ${error instanceof Error ? error.message : String(error)}`,
-          );
-        }
-      }
+
+      amplitude.track(
+        "text_message",
+        { userId: user.id },
+        {
+          device_id: `telegram-${user.telegramId}`,
+        },
+      );
+
       const { text } = await this.messageManagerService.handleTextMessage(
         userMessage,
         timestamp,

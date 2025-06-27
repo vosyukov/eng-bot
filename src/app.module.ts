@@ -16,6 +16,7 @@ import { UserModule } from "./user/user.module";
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
+
     LoggingModule,
     RssModule,
     TelegramModule,
