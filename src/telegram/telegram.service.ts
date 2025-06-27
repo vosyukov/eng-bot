@@ -47,6 +47,17 @@ export class TelegramService
             chat_id: ctx.chat?.id.toString(),
           });
           this.logger.log(`User saved: ${savedUser.telegramId}`);
+
+          amplitude.track(
+            "register",
+            { userId: savedUser.id },
+            {
+              language: savedUser.languageCode || undefined,
+              user_id: savedUser.id,
+              platform: "telegram",
+              device_id: `telegram-${savedUser.telegramId}`,
+            },
+          );
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
