@@ -10,13 +10,9 @@ import { MessageManagerService } from "../message-manager/message-manager.servic
 import { LoggingService, InjectLogger } from "../logging";
 import { UserService } from "../user/user.service";
 import fetch from "node-fetch";
-import { init, event } from "@haensl/google-analytics/measurement-protocol";
 
-init({
-  fetch,
-  measurementId: "G-JQQB5R0FRC",
-  measurementSecret: "Gd5HjuNVQ96YNPnAq3h-Lg",
-});
+// Will be initialized in onApplicationBootstrap
+let gaModule: any = null;
 @Injectable()
 export class TelegramService
   implements OnApplicationBootstrap, OnApplicationShutdown
@@ -30,10 +26,29 @@ export class TelegramService
     @InjectLogger() private readonly logger: LoggingService,
   ) {}
 
-  onApplicationBootstrap() {
+  async onApplicationBootstrap() {
     const bot = this.telegramBotAdapter.getBot();
 
     this.logger.log("Initializing Telegram service");
+
+    try {
+      // Dynamically import the Google Analytics module
+      gaModule = await import("@haensl/google-analytics/measurement-protocol");
+      gaModule.init({
+        fetch,
+        measurementId: "G-JQQB5R0FRC",
+        measurementSecret: "Gd5HjuNVQ96YNPnAq3h-Lg",
+      });
+      this.logger.log("Google Analytics initialized");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(
+        `Failed to initialize Google Analytics: ${errorMessage}`,
+        errorStack,
+      );
+    }
 
     bot.start(async (ctx) => {
       const lang = ctx.from?.language_code?.split("-")[0] || "en";
@@ -77,7 +92,19 @@ export class TelegramService
         this.logger.error(`User not found for telegramId: ${telegramId}`);
         return;
       }
-      event({ name: "text-message", params: { user_id: user.id } });
+      // Track event if Google Analytics is initialized
+      if (gaModule) {
+        try {
+          gaModule.event({
+            name: "text-message",
+            params: { user_id: user.id },
+          });
+        } catch (error) {
+          this.logger.error(
+            `Failed to track event: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+      }
       const { text } = await this.messageManagerService.handleTextMessage(
         userMessage,
         timestamp,
