@@ -75,6 +75,8 @@ export class TelegramService
         "text_message",
         { userId: user.id },
         {
+          user_id: user.id,
+          platform: "telegram",
           device_id: `telegram-${user.telegramId}`,
         },
       );
