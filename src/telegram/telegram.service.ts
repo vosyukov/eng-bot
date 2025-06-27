@@ -63,6 +63,7 @@ export class TelegramService
       const timestamp = new Date(ctx.message.date * 1000);
       const chatId = ctx.chat.id.toString();
       const telegramId = ctx.from.id;
+      const lang = ctx.from.language_code;
 
       // Get user from database
       const user = await this.userService.findUserByTelegramId(telegramId);
@@ -75,6 +76,7 @@ export class TelegramService
         "text_message",
         { userId: user.id },
         {
+          language: lang,
           user_id: user.id,
           platform: "telegram",
           device_id: `telegram-${user.telegramId}`,
