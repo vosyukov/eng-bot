@@ -53,7 +53,7 @@ export class MessageManagerService {
     );
 
     if (tutorReply.userProfileInfo) {
-      await this.userRepository.updateUser(user.telegramId, {
+      await this.userRepository.updateUser(user.telegramId || "", {
         city: tutorReply.userProfileInfo.city,
         firstName: tutorReply.userProfileInfo.name,
       });

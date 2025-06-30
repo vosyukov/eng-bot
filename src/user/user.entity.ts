@@ -2,7 +2,8 @@ import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: uuid("id").primaryKey().defaultRandom(),
-  telegramId: text("telegram_id").notNull().unique(),
+  telegramId: text("telegram_id").unique(),
+  maxId: text("max_id").unique(),
   chatId: text("chat_id"),
   firstName: text("first_name"),
   lastName: text("last_name"),

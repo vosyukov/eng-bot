@@ -7,6 +7,7 @@ import { SQL } from "drizzle-orm/sql/sql";
 export interface UserFilter {
   userId?: string;
   telegramId?: string;
+  maxId?: string;
 }
 @Injectable()
 export class UserRepository {
@@ -14,26 +15,6 @@ export class UserRepository {
 
   constructor(private readonly databaseService: DatabaseService) {
     this.db = this.databaseService.orm;
-  }
-
-  public async createUser(userData: UserInsert): Promise<UserRow> {
-    const [createdUser] = await this.db
-      .insert(user)
-      .values(userData)
-      .returning();
-    return createdUser;
-  }
-
-  public async findByTelegramId(
-    telegramId: string,
-  ): Promise<UserRow | undefined> {
-    console.log(telegramId);
-    const [foundUser] = await this.db
-      .select()
-      .from(user)
-      .where(eq(user.telegramId, telegramId))
-      .limit(1);
-    return foundUser;
   }
 
   public async findById(id: string): Promise<UserRow | undefined> {
@@ -54,6 +35,10 @@ export class UserRepository {
 
     if (filter.telegramId) {
       conditions.push(eq(user.telegramId, filter.telegramId));
+    }
+
+    if (filter.maxId) {
+      conditions.push(eq(user.maxId, filter.maxId));
     }
 
     const [foundUser] = await this.db
@@ -77,5 +62,28 @@ export class UserRepository {
       .where(eq(user.telegramId, telegramId))
       .returning();
     return updatedUser;
+  }
+
+  public async upsertUser(userData: Partial<UserInsert>): Promise<UserRow> {
+    const [upsertedUser] = await this.db
+      .insert(user)
+      .values({
+        ...userData,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: userData.telegramId ? user.telegramId : user.maxId,
+        set: {
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          username: userData.username,
+          languageCode: userData.languageCode,
+          chatId: userData.chatId,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    return upsertedUser;
   }
 }

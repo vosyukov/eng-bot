@@ -8,57 +8,30 @@ export class UserService {
 
   /**
    * Creates a new user or updates an existing one based on Telegram user data
+   * using upsert operation with unique keys
    */
   async saveUser(telegramUser: {
-    telegramId: string;
+    telegramId?: string;
+    maxId?: string;
     first_name?: string;
     last_name?: string;
-    username?: string;
+    username?: string | null;
     language_code?: string;
     chat_id?: string;
   }): Promise<UserRow> {
-    const existingUser = await this.userRepository.findByTelegramId(
-      telegramUser.telegramId,
-    );
+    // Prepare user data for upsert
+    const userData = {
+      telegramId: telegramUser.telegramId,
+      maxId: telegramUser.maxId,
+      firstName: telegramUser.first_name,
+      lastName: telegramUser.last_name,
+      username: telegramUser.username,
+      languageCode: telegramUser.language_code,
+      chatId: telegramUser.chat_id,
+    };
 
-    if (existingUser) {
-      // Update existing user
-      const updatedUser = await this.userRepository.updateUser(
-        telegramUser.telegramId,
-        {
-          firstName: telegramUser.first_name,
-          lastName: telegramUser.last_name,
-          username: telegramUser.username,
-          languageCode: telegramUser.language_code,
-          chatId: telegramUser.chat_id,
-        },
-      );
-
-      if (!updatedUser) {
-        // If update fails, return the existing user
-        return existingUser;
-      }
-
-      return updatedUser;
-    } else {
-      // Create new user
-      const newUser = await this.userRepository.createUser({
-        telegramId: telegramUser.telegramId,
-        chatId: telegramUser.chat_id,
-        firstName: telegramUser.first_name,
-        lastName: telegramUser.last_name,
-        username: telegramUser.username,
-        languageCode: telegramUser.language_code,
-      });
-      return newUser;
-    }
-  }
-
-  /**
-   * Finds a user by their Telegram ID
-   */
-  async findUserByTelegramId(telegramId: number): Promise<UserRow | undefined> {
-    return this.userRepository.findByTelegramId(telegramId.toString());
+    // Perform upsert operation
+    return this.userRepository.upsertUser(userData);
   }
 
   /**

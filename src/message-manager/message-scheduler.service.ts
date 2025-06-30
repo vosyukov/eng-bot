@@ -40,7 +40,7 @@ export class MessageSchedulerService {
       if (!user) {
         continue;
       }
-      await this.telegramService.sendMessage(user.telegramId, {
+      await this.telegramService.sendMessage(user.telegramId || "", {
         mainMessage: item.message.text,
         tMainMessage: item.message.translation,
         grammarNote: null,
