@@ -1,14 +1,15 @@
-import { Module, forwardRef } from "@nestjs/common";
+import { forwardRef, Global, Module } from "@nestjs/common";
+import { TelegramService } from "./services/telegram.service";
 import { ConfigModule } from "@nestjs/config";
-import { TelegramService } from "./telegram.service";
-import { TelegramBotAdapter } from "./telegram-bot.adapter";
 import { I18nModule } from "../i18n/i18n.module";
 import { UtilsModule } from "../utils/utils.module";
 import { AssistantModule } from "../assistant/assistant.module";
 import { MessageHistoryModule } from "../message-history/message-history.module";
 import { MessageManagerModule } from "../message-manager/message-manager.module";
 import { UserModule } from "../user/user.module";
+import { TelegramBotAdapter } from "./services/telegram-bot.adapter";
 
+@Global()
 @Module({
   imports: [
     ConfigModule,
@@ -22,4 +23,4 @@ import { UserModule } from "../user/user.module";
   providers: [TelegramService, TelegramBotAdapter],
   exports: [TelegramService],
 })
-export class TelegramModule {}
+export class MessageHandlerModule {}

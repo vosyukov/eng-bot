@@ -23,8 +23,11 @@ export class MessageManagerService {
     userMessage: string,
     timestamp: Date,
     user: UserRow,
-    telegramId: number,
-  ): Promise<{ text: string }> {
+  ): Promise<{
+    grammarNote: string | null;
+    mainMessage: string;
+    tMainMessage: string;
+  }> {
     await this.scheduleMessageRepository.updateStatus(
       {
         userIds: [user.id],
@@ -32,7 +35,6 @@ export class MessageManagerService {
       },
       MessageStatus.REVOKED,
     );
-    console.log(telegramId);
 
     await this.messageHistoryRepository.addMessage(
       user.id,
@@ -57,20 +59,6 @@ export class MessageManagerService {
       });
     }
 
-    let text: string = "";
-
-    if (tutorReply.grammarNote) {
-      text += `>${this.utilsService.escapeMarkdownV2(tutorReply.grammarNote)}\n\n`;
-    }
-
-    if (tutorReply.mainMessage) {
-      text += `${this.utilsService.escapeMarkdownV2(tutorReply.mainMessage)}\n\n`;
-    }
-
-    if (tutorReply.tMainMessage) {
-      text += `||${this.utilsService.escapeMarkdownV2(tutorReply.tMainMessage)}||`;
-    }
-
     await this.messageHistoryRepository.addMessage(
       user.id,
       tutorReply.mainMessage,
@@ -92,6 +80,10 @@ export class MessageManagerService {
       );
     }
 
-    return { text };
+    return {
+      grammarNote: tutorReply.grammarNote,
+      mainMessage: tutorReply.mainMessage,
+      tMainMessage: tutorReply.tMainMessage,
+    };
   }
 }

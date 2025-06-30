@@ -1,8 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { user, UserInsert, UserRow } from "./user.entity";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { DatabaseService } from "../database/drizzle.module";
+import { SQL } from "drizzle-orm/sql/sql";
 
+export interface UserFilter {
+  userId?: string;
+  telegramId?: string;
+}
 @Injectable()
 export class UserRepository {
   private readonly db: any;
@@ -38,6 +43,25 @@ export class UserRepository {
       .where(eq(user.id, id))
       .limit(1);
     return foundUser;
+  }
+
+  public async getUser(filter: UserFilter): Promise<UserRow | null> {
+    const conditions: SQL[] = [];
+
+    if (filter.userId) {
+      conditions.push(eq(user.id, filter.userId));
+    }
+
+    if (filter.telegramId) {
+      conditions.push(eq(user.telegramId, filter.telegramId));
+    }
+
+    const [foundUser] = await this.db
+      .select()
+      .from(user)
+      .where(and(...conditions))
+      .limit(1);
+    return foundUser || null;
   }
 
   public async updateUser(

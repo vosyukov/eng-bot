@@ -2,11 +2,12 @@ import { Injectable, Inject, forwardRef } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { ScheduleMessageRepository } from "./schedule-message.repository";
 import { MessageHistoryRepository } from "../message-history/message-history.repository";
-import { TelegramService } from "../telegram/telegram.service";
+
 import { MessageStatus, MessageType } from "./scheduled-message.entity";
 import { UtilsService } from "../utils/utils.service";
 import { InjectLogger, LoggingService } from "../logging";
 import { UserService } from "../user/user.service";
+import { TelegramService } from "../message-handler/services/telegram.service";
 
 @Injectable()
 export class MessageSchedulerService {
@@ -34,13 +35,16 @@ export class MessageSchedulerService {
       if (new Date() <= item.time) {
         continue;
       }
-      const text = `${this.utilsService.escapeMarkdownV2(item.message.text)}\n\n ||${this.utilsService.escapeMarkdownV2(item.message.translation)}||`;
-      console.log(item);
+
       const user = await this.userService.findUserById(item.userId);
       if (!user) {
         continue;
       }
-      await this.telegramService.sendMessage(user.telegramId, text);
+      await this.telegramService.sendMessage(user.telegramId, {
+        mainMessage: item.message.text,
+        tMainMessage: item.message.translation,
+        grammarNote: null,
+      });
       this.messageHistoryRepository.addMessage(
         item.userId,
         item.message.text,

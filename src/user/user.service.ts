@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserRepository } from "./user.repository";
+import { UserFilter, UserRepository } from "./user.repository";
 import { UserRow } from "./user.entity";
 
 @Injectable()
@@ -66,5 +66,9 @@ export class UserService {
    */
   async findUserById(id: string): Promise<UserRow | undefined> {
     return this.userRepository.findById(id);
+  }
+
+  async getUser(filter: UserFilter): Promise<UserRow | null> {
+    return this.userRepository.getUser(filter);
   }
 }

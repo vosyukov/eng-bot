@@ -3,13 +3,15 @@ import {
   OnApplicationBootstrap,
   OnApplicationShutdown,
 } from "@nestjs/common";
-import { TelegramBotAdapter } from "./telegram-bot.adapter";
-import { I18nService } from "../i18n/i18n.service";
-import { MessageManagerService } from "../message-manager/message-manager.service";
-import { LoggingService, InjectLogger } from "../logging";
-import { UserService } from "../user/user.service";
 
 import * as amplitude from "@amplitude/analytics-node";
+import { UserService } from "../../user/user.service";
+import { InjectLogger, LoggingService } from "../../logging";
+import { MessageManagerService } from "../../message-manager/message-manager.service";
+import { I18nService } from "../../i18n/i18n.service";
+
+import { UtilsService } from "../../utils/utils.service";
+import { TelegramBotAdapter } from "./telegram-bot.adapter";
 amplitude.init("5277c82bcd0b1af4935a287e06bb33f2");
 @Injectable()
 export class TelegramService
@@ -19,6 +21,7 @@ export class TelegramService
     private readonly telegramBotAdapter: TelegramBotAdapter,
     private readonly i18nService: I18nService,
     private readonly messageManagerService: MessageManagerService,
+    private readonly utilsService: UtilsService,
     private readonly userService: UserService,
     @InjectLogger() private readonly logger: LoggingService,
   ) {}
@@ -73,11 +76,11 @@ export class TelegramService
       const userMessage = ctx.message.text;
       const timestamp = new Date(ctx.message.date * 1000);
       const chatId = ctx.chat.id.toString();
-      const telegramId = ctx.from.id;
+      const telegramId = ctx.from.id.toString();
       const lang = ctx.from.language_code;
 
-      // Get user from database
-      const user = await this.userService.findUserByTelegramId(telegramId);
+      const user = await this.userService.getUser({ telegramId });
+
       if (!user) {
         this.logger.error(`User not found for telegramId: ${telegramId}`);
         return;
@@ -94,14 +97,13 @@ export class TelegramService
         },
       );
 
-      const { text } = await this.messageManagerService.handleTextMessage(
+      const result = await this.messageManagerService.handleTextMessage(
         userMessage,
         timestamp,
         user,
-        telegramId,
       );
 
-      await this.sendMessage(chatId, text);
+      await this.sendMessage(chatId, result);
     });
 
     bot.launch();
@@ -115,7 +117,28 @@ export class TelegramService
     this.logger.log("Telegram bot stopped");
   }
 
-  public async sendMessage(chatId: string, message: string): Promise<void> {
-    await this.telegramBotAdapter.sendMessage(Number(chatId), message);
+  public async sendMessage(
+    chatId: string,
+    message: {
+      grammarNote: string | null;
+      mainMessage: string;
+      tMainMessage: string;
+    },
+  ): Promise<void> {
+    let text: string = "";
+
+    if (message.grammarNote) {
+      text += `>${this.utilsService.escapeMarkdownV2(message.grammarNote)}\n\n`;
+    }
+
+    if (message.mainMessage) {
+      text += `${this.utilsService.escapeMarkdownV2(message.mainMessage)}\n\n`;
+    }
+
+    if (message.tMainMessage) {
+      text += `||${this.utilsService.escapeMarkdownV2(message.tMainMessage)}||`;
+    }
+
+    await this.telegramBotAdapter.sendMessage(Number(chatId), text);
   }
 }
