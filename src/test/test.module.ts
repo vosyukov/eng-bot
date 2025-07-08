@@ -9,8 +9,8 @@ import { AssistantModule } from "../assistant/assistant.module";
   imports: [
     UserModule,
     MessageHistoryModule,
-    MessageHandlerModule,
     AssistantModule,
+    MessageHandlerModule,
   ],
   providers: [TestService],
 })

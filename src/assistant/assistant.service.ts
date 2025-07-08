@@ -2,7 +2,11 @@ import { PromptLayer } from "promptlayer";
 import { Injectable, LoggerService } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-import { AssistantResponseType } from "./assistant.types";
+import {
+  AssistantResponseType,
+  NewsResponse,
+  NewsResponseType,
+} from "./assistant.types";
 import { MessageHistoryRow } from "../message-history/message-history.repository";
 import { InjectLogger } from "../logging";
 import { UserRow } from "../user/user.entity";
@@ -18,7 +22,7 @@ export class AssistantService {
   public async getNews(
     user: UserRow,
     contextMessages: MessageHistoryRow[],
-  ): Promise<string> {
+  ): Promise<{ mainMessage: string; tMainMessage: string }> {
     const f = contextMessages.map((m) => ({
       sender: m.sender as never,
       text: `${m.message}`,
@@ -38,7 +42,12 @@ export class AssistantService {
     };
 
     const response = await this.req("news2", inputVariables, metadata);
-    return response.raw_response.choices?.[0]?.message.content;
+
+    const tutorReply = JSON.parse(
+      response.raw_response.choices?.[0]?.message.content,
+    ) as NewsResponseType;
+
+    return tutorReply;
   }
 
   public async req(

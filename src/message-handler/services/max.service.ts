@@ -15,7 +15,7 @@ import { UtilsService } from "../../utils/utils.service";
 import { MaxBotAdapter } from "./max-bot.adapter";
 amplitude.init("5277c82bcd0b1af4935a287e06bb33f2");
 @Injectable()
-export class TelegramService
+export class MaxService
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   constructor(

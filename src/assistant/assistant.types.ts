@@ -29,3 +29,4 @@ export const NewsResponse = z.object({
 
 export type RoleType = "system" | "user" | "assistant";
 export type AssistantResponseType = z.infer<typeof ChatResponse>;
+export type NewsResponseType = z.infer<typeof NewsResponse>;

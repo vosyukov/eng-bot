@@ -3,7 +3,7 @@ import { Cron } from "@nestjs/schedule";
 import { UserRepository } from "../user/user.repository";
 import { AssistantService } from "../assistant/assistant.service";
 import { MessageHistoryRepository } from "../message-history/message-history.repository";
-import { TelegramBotAdapter } from "../message-handler/services/telegram-bot.adapter";
+import { TelegramService } from "../message-handler/services/telegram.service";
 
 @Injectable()
 export class TestService {
@@ -11,9 +11,9 @@ export class TestService {
     private readonly userRepository: UserRepository,
     private readonly assistantService: AssistantService,
     private readonly messageHistoryRepository: MessageHistoryRepository,
-    private readonly telegramBotAdapter: TelegramBotAdapter,
+    private readonly telegramService: TelegramService,
   ) {}
-  @Cron("*/60 * * * * *")
+  @Cron("0 */4 * * *")
   public async test(): Promise<void> {
     const user = await this.userRepository.getUser({ telegramId: "263537201" });
 
@@ -25,8 +25,21 @@ export class TestService {
       userIds: [user.id],
     });
 
-    const a = await this.assistantService.getNews(user, contextMessages);
+    const tutorReply = await this.assistantService.getNews(
+      user,
+      contextMessages,
+    );
+    console.log(tutorReply.mainMessage);
+    await this.messageHistoryRepository.addMessage(
+      user.id,
+      tutorReply.mainMessage,
+      "assistant",
+      new Date(),
+    );
 
-    await this.telegramBotAdapter.sendMessage2(Number(user.telegramId), a);
+    await this.telegramService.sendMessage(user.telegramId!, {
+      ...tutorReply,
+      grammarNote: null,
+    });
   }
 }
