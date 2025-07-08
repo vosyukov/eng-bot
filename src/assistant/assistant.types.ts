@@ -22,5 +22,10 @@ export const ChatResponse = z.object({
     .default(null),
 });
 
+export const NewsResponse = z.object({
+  mainMessage: z.string(),
+  tMainMessage: z.string(),
+});
+
 export type RoleType = "system" | "user" | "assistant";
 export type AssistantResponseType = z.infer<typeof ChatResponse>;

@@ -15,18 +15,45 @@ export class AssistantService {
     private readonly loggerService: LoggerService,
   ) {}
 
-  public async request(
+  public async getNews(
     user: UserRow,
     contextMessages: MessageHistoryRow[],
-  ): Promise<AssistantResponseType> {
+  ): Promise<string> {
+    const f = contextMessages.map((m) => ({
+      sender: m.sender as never,
+      text: `${m.message}`,
+      timestamp: m.time,
+    }));
+
+    const inputVariables = {
+      chat_history: JSON.stringify(f),
+      userProfileInfo: JSON.stringify({
+        name: user.firstName,
+        city: user.city,
+      }),
+    };
+
+    const metadata = {
+      userId: user.id,
+    };
+
+    const response = await this.req("news2", inputVariables, metadata);
+    return response.raw_response.choices?.[0]?.message.content;
+  }
+
+  public async req(
+    promptName: string,
+    inputVariables?: Record<string, unknown> | undefined,
+    metadata?: Record<string, string> | undefined,
+    promptVersion?: string,
+  ): Promise<{
+    request_id: any;
+    raw_response: any;
+    prompt_blueprint: any;
+  }> {
     const promptLayerApiKey = this.configService.get<string>(
       "PROMPTLAYER_API_KEY",
     );
-
-    const promptLayerVersion = this.configService.get<string | undefined>(
-      "PROMPTLAYER_VERSION",
-    );
-
     const promptLayerOriginal = new PromptLayer({
       apiKey: promptLayerApiKey,
       enableTracing: true,
@@ -60,33 +87,53 @@ export class AssistantService {
       },
     });
 
+    const response = (await promptLayer.run({
+      promptName: promptName,
+      promptVersion: promptVersion ? Number(promptVersion) : undefined,
+      inputVariables: inputVariables,
+      stream: false,
+      metadata: metadata,
+    })) as {
+      request_id: any;
+      raw_response: any;
+      prompt_blueprint: any;
+    };
+
+    return response;
+  }
+
+  public async request(
+    user: UserRow,
+    contextMessages: MessageHistoryRow[],
+  ): Promise<AssistantResponseType> {
+    const promptLayerVersion = this.configService.get<string | undefined>(
+      "PROMPTLAYER_VERSION",
+    );
+
     const f = contextMessages.map((m) => ({
       sender: m.sender as never,
       text: `${m.message}`,
       timestamp: m.time,
     }));
 
-    const response = (await promptLayer.run({
-      promptName: "eng_bot",
-      promptVersion: promptLayerVersion
-        ? Number(promptLayerVersion)
-        : undefined,
-      inputVariables: {
-        chat_history: JSON.stringify(f),
-        userProfileInfo: JSON.stringify({
-          name: user.firstName,
-          city: user.city,
-        }),
-      },
-      stream: false,
-      metadata: {
-        userId: user.id,
-      },
-    })) as {
-      request_id: any;
-      raw_response: any;
-      prompt_blueprint: any;
+    const inputVariables = {
+      chat_history: JSON.stringify(f),
+      userProfileInfo: JSON.stringify({
+        name: user.firstName,
+        city: user.city,
+      }),
     };
+
+    const metadata = {
+      userId: user.id,
+    };
+
+    const response = await this.req(
+      "eng_bot",
+      inputVariables,
+      metadata,
+      promptLayerVersion,
+    );
 
     const tutorReply = JSON.parse(
       response.raw_response.choices?.[0]?.message.content,

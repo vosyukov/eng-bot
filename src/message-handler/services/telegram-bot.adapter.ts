@@ -31,6 +31,17 @@ export class TelegramBotAdapter {
     }
   }
 
+  public async sendMessage2(chatId: number, message: string): Promise<void> {
+    try {
+      await this.bot.telegram.sendMessage(chatId, message);
+    } catch (error) {
+      this.logger.error(
+        `Error sending message to chat ${chatId}:`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
   public getBot(): Telegraf<Context> {
     return this.bot;
   }

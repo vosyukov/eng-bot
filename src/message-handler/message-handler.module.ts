@@ -21,6 +21,6 @@ import { TelegramBotAdapter } from "./services/telegram-bot.adapter";
     UserModule,
   ],
   providers: [TelegramService, TelegramBotAdapter],
-  exports: [TelegramService],
+  exports: [TelegramService, TelegramBotAdapter],
 })
 export class MessageHandlerModule {}

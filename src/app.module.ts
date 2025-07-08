@@ -10,12 +10,14 @@ import { HealthcheckModule } from "./healthcheck/healthcheck.module";
 import { LoggingModule } from "./logging/logging.module";
 import { UserModule } from "./user/user.module";
 import { MessageHandlerModule } from "./message-handler/message-handler.module";
+import { TestModule } from "./test/test.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    TestModule,
     ScheduleModule.forRoot(),
     MessageHandlerModule,
     LoggingModule,
