@@ -13,7 +13,7 @@ export class TestService {
     private readonly messageHistoryRepository: MessageHistoryRepository,
     private readonly telegramService: TelegramService,
   ) {}
-  @Cron("0 */4 * * *")
+  @Cron("0 */1 * * *")
   public async test(): Promise<void> {
     const user = await this.userRepository.getUser({ telegramId: "263537201" });
 
